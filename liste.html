@@ -251,41 +251,42 @@ function calc(p){
 }
 
 function render(){
-  const tb = document.getElementById("tbody");
-  if(!tb) return;
-  tb.innerHTML = "";
-  let sMesai=0, sHs=0, sPrim=0, sYol=0, sTop=0;
-  (state.people||[]).forEach((p,i)=>{
-    const c = calc(p);
-    sMesai+=c.mesai; sHs+=c.hs; sPrim+=c.prim; sYol+=c.yol; sTop+=c.toplam;
-    const k = (branch==="Cadde" && p.kurye) ? ' <b style="color:#c45c26">K</b>' : '';
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${i+1}</td>
-      <td class="name">${p.name||""}${k}</td>
-      <td><input class="cell" type="number" step="0.5" value="${p.mesaiSaat||0}" onchange="setP(${i},'mesaiSaat',this.value)"></td>
-      <td class="formula">${dash(c.mesai)}</td>
-      <td><input class="cell" type="number" step="0.5" value="${p.hsSaat||0}" onchange="setP(${i},'hsSaat',this.value)"></td>
-      <td class="formula">${dash(c.hs)}</td>
-      <td>${branch==="Cadde" && p.kurye ? `<input class="cell" type="number" value="${p.primAdet||0}" onchange="setP(${i},'primAdet',this.value)" style="width:50px">` : "-"}</td>
-      <td class="formula">${dash(c.prim)}</td>
-      <td><input class="cell" type="number" value="${p.yolTutar||0}" onchange="setP(${i},'yolTutar',this.value)"></td>
-      <td><input class="cell" type="number" value="${p.izinTutar||0}" onchange="setP(${i},'izinTutar',this.value)"></td>
-      <td><input class="cell" type="number" value="${p.yillikTutar||0}" onchange="setP(${i},'yillikTutar',this.value)"></td>
-      <td><input class="cell" type="number" value="${p.disiplinDk||0}" onchange="setP(${i},'disiplinDk',this.value)"></td>
-      <td class="formula">${dash(c.toplam)}</td>`;
-    tb.appendChild(tr);
-  });
-  document.getElementById("stats").innerHTML = `
-    <div class="stat">Kişi<b>${state.people.length}</b></div>
-    <div class="stat">Mesai<b>${tl(sMesai)}</b></div>
-    <div class="stat">HS<b>${tl(sHs)}</b></div>
-    <div class="stat">Prim<b>${tl(sPrim)}</b></div>
-    <div class="stat">Yol<b>${tl(sYol)}</b></div>
-    <div class="stat">Toplam<b>${tl(sTop)} TL</b></div>`;
-  renderOzet();
-  renderDevam();
-  renderCeza();
+  const isMobile = window.innerWidth < 800;
+  const wrap = document.getElementById("sec-liste");
+  let sTop = 0;
+
+  if(isMobile){
+    wrap.innerHTML = "";
+    (state.people||[]).forEach((p,i)=>{
+      const c = calc(p); sTop += c.toplam;
+      const card = document.createElement("div");
+      card.style.cssText = "background:#fff;border-radius:12px;padding:12px;margin:6px 8px;box-shadow:0 1px 3px rgba(0,0,0,.08);";
+      card.innerHTML = `
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+          <b>${p.name||""}</b>
+          <span style="font-weight:800;color:#1f4b8f;">${dash(c.toplam)}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:12px;">
+          <div>Mesai <input class="cell" type="number" step="0.5" value="${p.mesaiSaat||0}" onchange="setP(${i},'mesaiSaat',this.value)" style="width:48px;"></div>
+          <div>HS <input class="cell" type="number" step="0.5" value="${p.hsSaat||0}" onchange="setP(${i},'hsSaat',this.value)" style="width:48px;"></div>
+          <div>Yol <input class="cell" type="number" value="${p.yolTutar||0}" onchange="setP(${i},'yolTutar',this.value)" style="width:56px;"></div>
+          <div>${p.kurye?'Prim <input class="cell" type="number" value="'+(p.primAdet||0)+'" onchange="setP('+i+',\'primAdet\',this.value)" style="width:42px;">':''}</div>
+        </div>`;
+      wrap.appendChild(card);
+    });
+  } else {
+    const tb = document.getElementById("tbody");
+    if(!tb) return;
+    tb.innerHTML = "";
+    (state.people||[]).forEach((p,i)=>{
+      const c = calc(p); sTop += c.toplam;
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${i+1}</td><td class="name">${p.name||""}</td><td><input class="cell" type="number" step="0.5" value="${p.mesaiSaat||0}" onchange="setP(${i},'mesaiSaat',this.value)"></td><td>${dash(c.mesai)}</td><td><input class="cell" type="number" step="0.5" value="${p.hsSaat||0}" onchange="setP(${i},'hsSaat',this.value)"></td><td>${dash(c.hs)}</td><td>${p.kurye?`<input class="cell" style="width:46px" type="number" value="${p.primAdet||0}" onchange="setP(${i},'primAdet',this.value)">`:'-'}</td><td>${dash(c.prim)}</td><td><input class="cell" type="number" value="${p.yolTutar||0}" onchange="setP(${i},'yolTutar',this.value)"></td><td>${dash(c.izin)}</td><td>${dash(c.yillik)}</td><td>${dash((p.disiplinDk||0))}</td><td class="formula">${dash(c.toplam)}</td>`;
+      tb.appendChild(tr);
+    });
+  }
+  const stats = document.getElementById("stats");
+  if(stats) stats.innerHTML = `<div class="stat"><b>${(state.people||[]).length}</b> kişi</div><div class="stat"><b>${tl(sTop)} TL</b></div>`;
 }
 
 function setP(i,k,v){
