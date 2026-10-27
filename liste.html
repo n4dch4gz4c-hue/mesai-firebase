@@ -47,7 +47,7 @@ input.cell{width:60px;text-align:center;border:1px solid #ddd;border-radius:4px;
   <div style="background:#fff;padding:32px;border-radius:16px;width:320px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.3);">
     <h2 style="margin:0 0 8px;color:#1f4b8f;">Mesai Listesi</h2>
     <p style="margin:0 0 20px;color:#666;font-size:14px;">Şifrenizi girin</p>
-    <input id="loginPass" type="password" placeholder="Şifre" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:16px;margin-bottom:12px;box-sizing:border-box;">
+    <input id="loginPass" type="password" placeholder="Şifre" onkeypress="if(event.key==='Enter')doLogin()" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:16px;margin-bottom:12px;box-sizing:border-box;">
     <button onclick="doLogin()" style="width:100%;padding:12px;background:#1f4b8f;color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer;">Giriş</button>
     <div id="loginError" style="color:#c45c26;margin-top:12px;font-size:13px;display:none;">Hatalı şifre</div>
   </div>
@@ -132,7 +132,7 @@ function doLogout(){
 }
 
 function doLogin(){
-  const p = document.getElementById("loginPass").value.trim();
+  const p = (document.getElementById("loginPass").value||"").trim();
   const u = USERS.find(x => x.pass === p);
   if(!u){
     document.getElementById("loginError").style.display = "block";
@@ -142,7 +142,7 @@ function doLogin(){
   sessionStorage.setItem("mesaiUser", JSON.stringify(u));
   document.getElementById("loginOverlay").style.display = "none";
   applyUserAccess();
-  load();
+  setTimeout(load, 100);
 }
 
 function applyUserAccess(){
