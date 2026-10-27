@@ -71,7 +71,7 @@ input.cell{width:60px;text-align:center;border:1px solid #ddd;border-radius:4px;
   #sec-duzenle th, #sec-duzenle td{
     padding:2px 1px; white-space:nowrap;
   }
-  #sec-duzenle input{width:48px !important;font-size:11px;padding:2px;}
+  #sec-duzenle input{width:44px !important;font-size:10px;padding:2px;} #sec-duzenle input[onchange*="setPName"]{width:130px !important;font-size:11px;}
   #sec-kurye input{width:42px !important;padding:2px;}
 }
 
@@ -506,7 +506,7 @@ function renderDuzenle(){
   (state.people||[]).forEach((p,i)=>{
     rows += `<tr>
       <td>${i+1}</td>
-      <td><input value="${p.name||""}" onchange="setPName(${i},this.value)" style="width:120px;font-size:12px;"></td>
+      <td><input value="${p.name||""}" onchange="setPName(${i},this.value)" style="width:140px;font-size:11px;padding:2px 4px;"></td>
       <td><input type="number" value="${p.mesaiBirim||300}" onchange="setP(${i},'mesaiBirim',this.value)" style="width:70px;"></td>
       <td><input type="number" value="${p.izinBirim||izinMap[p.name]||0}" onchange="setP(${i},'izinBirim',this.value)" style="width:70px;background:#fff8e6;"></td>
       ${isCadde?`<td><input type="checkbox" ${p.kurye?"checked":""} onchange="setKurye(${i},this.checked)"></td>`:""}
