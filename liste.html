@@ -110,6 +110,8 @@ input.cell{width:60px;text-align:center;border:1px solid #ddd;border-radius:4px;
       <option>Cadde</option>
       <option>Kadıköy</option>
       <option>Çengelköy</option>
+      <option>Taksim Pide</option>
+      <option>Taksim Büfe</option>
     </select>
     <button class="primary" onclick="saveNow()">Kaydet</button>
     <span id="userName" style="font-size:13px;margin-right:8px;opacity:.9;"></span>
@@ -124,6 +126,7 @@ input.cell{width:60px;text-align:center;border:1px solid #ddd;border-radius:4px;
   <button class="tab" onclick="showTab('dashboard',this)">Dashboard</button>
   <button class="tab" onclick="showTab('kurye',this)">Kurye</button>
   <button class="tab" onclick="showTab('duzenle',this)">Düzenleme</button>
+  <button class="tab" onclick="showTab('yetkili',this)">Yetkili</button>
   <button class="tab" onclick="showTab('ozet',this)">Özet</button>
 </nav>
 
@@ -148,6 +151,7 @@ input.cell{width:60px;text-align:center;border:1px solid #ddd;border-radius:4px;
 <div id="sec-dashboard" style="display:none;padding:16px;"></div>
 <div id="sec-kurye" style="display:none;padding:16px;"></div>
 <div id="sec-duzenle" style="display:none;padding:16px;"></div>
+<div id="sec-yetkili" style="display:none;padding:16px;"></div>
 <div id="sec-ozet" style="display:none;padding:16px;"></div>
 
 
@@ -162,8 +166,8 @@ input.cell{width:60px;text-align:center;border:1px solid #ddd;border-radius:4px;
 <script>
 
 const USERS = [
-  {name:"Semih Sofuoğlu", pass:"1903", branches:["Cadde","Kadıköy","Çengelköy"], admin:true},
-  {name:"Alper Kızılkaya", pass:"1905", branches:["Cadde","Kadıköy","Çengelköy"], admin:true},
+  {name:"Semih Sofuoğlu", pass:"1903", branches:["Cadde","Kadıköy","Çengelköy","Taksim Pide","Taksim Büfe"], admin:true},
+  {name:"Alper Kızılkaya", pass:"1905", branches:["Cadde","Kadıköy","Çengelköy","Taksim Pide","Taksim Büfe"], admin:true},
   {name:"Özay Alşan", pass:"367536", branches:["Kadıköy"]},
   {name:"Sedat Kızılkaya", pass:"345334", branches:["Kadıköy"]},
   {name:"Ahmet Özçelik", pass:"5353", branches:["Çengelköy"]},
@@ -270,6 +274,7 @@ function showTab(name, btn){
   if(name==="ozet") renderOzet();
   if(name==="duzenle") renderDuzenle();
   if(name==="kurye") renderKurye();
+  if(name==="yetkili") renderYetkili();
   if(name==="dashboard") renderDashboard();
 }
 
@@ -483,6 +488,29 @@ function savePrevSnapshot(){
 
 
 
+function renderYetkili(){
+  const el = document.getElementById("sec-yetkili");
+  if(!el || !currentUser || !currentUser.admin) { if(el) el.innerHTML="<p>Yetkin yok</p>"; return; }
+  let rows = USERS.map((u,i)=>`<tr><td>${u.name}</td><td>${u.pass}</td><td>${u.branches.join(", ")}</td><td>${u.admin?"Admin":"-"}</td></tr>`).join("");
+  el.innerHTML = `
+    <h3>Yetkililer</h3>
+    <table style="width:100%;max-width:600px;"><thead><tr style="background:#1f4b8f;color:#fff;"><th>Ad</th><th>Şifre</th><th>Şubeler</th><th></th></tr></thead><tbody>${rows}</tbody></table>
+    <div style="margin-top:12px;">
+      <input id="yeniYetkiliAd" placeholder="Ad" style="padding:6px;width:120px;">
+      <input id="yeniYetkiliPass" placeholder="Şifre" style="padding:6px;width:80px;">
+      <select id="yeniYetkiliSube" style="padding:6px;"><option>Cadde</option><option>Kadıköy</option><option>Çengelköy</option><option>Taksim Pide</option><option>Taksim Büfe</option></select>
+      <button onclick="ekleYetkili()" style="background:#1f4b8f;color:#fff;border:none;padding:6px 10px;">Ekle</button>
+    </div>`;
+}
+function ekleYetkili(){
+  const ad = document.getElementById("yeniYetkiliAd").value.trim();
+  const pass = document.getElementById("yeniYetkiliPass").value.trim();
+  const sube = document.getElementById("yeniYetkiliSube").value;
+  if(!ad || !pass) return;
+  USERS.push({name:ad, pass, branches:[sube]});
+  renderYetkili();
+  toast(ad + " eklendi (oturum boyunca)");
+}
 function renderKurye(){
   const el = document.getElementById("sec-kurye");
   if(!el) return;
@@ -539,6 +567,8 @@ function renderDuzenle(){
       <input id="yeniAd" placeholder="Yeni isim" style="padding:6px;width:140px;">
       <input id="yeniBirim" type="number" placeholder="Saatlik" value="300" style="padding:6px;width:70px;">
       <button onclick="ekleKisi()" style="background:#1f4b8f;color:#fff;border:none;padding:6px 10px;">Ekle</button>
+      <input type="file" id="importFile" accept=".xlsx,.xls,.csv,.pdf" style="display:none;" onchange="importPeople(this)">
+      <button onclick="document.getElementById('importFile').click()" style="background:#0f7b4c;color:#fff;border:none;padding:6px 10px;">Excel/PDF</button>
     </div>
     <table style="width:100%;max-width:700px;">
       <thead><tr style="background:#1f4b8f;color:#fff;">
@@ -550,6 +580,24 @@ function renderDuzenle(){
 function setPName(i,v){ if(state.people[i]) state.people[i].name = v.trim(); saveNow(); }
 function setKurye(i,v){ if(state.people[i]) state.people[i].kurye = v; saveNow(); }
 function silKisi(i){ if(confirm("Silinsin mi?")){ state.people.splice(i,1); saveNow(); renderDuzenle(); } }
+function importPeople(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const text = e.target.result;
+    const names = text.split(/[\n,;]/).map(s=>s.trim()).filter(s=>s.length>2 && !/^\d+$/.test(s));
+    names.forEach(name=>{
+      if(!state.people.find(p=>p.name===name)){
+        state.people.push({id:Date.now()+Math.random(), name, kurye:false, mesaiSaat:0, mesaiBirim:300, hsSaat:0, hsBirim:branch==="Çengelköy"?1000:2500, primAdet:0, yolTutar:0, izinGun:0, izinTutar:0, yillikTutar:0, disiplinDk:0, izinBirim:0});
+      }
+    });
+    saveNow();
+    renderDuzenle();
+    toast(names.length + " kişi eklendi");
+  };
+  reader.readAsText(file);
+}
 function ekleKisi(){
   const ad = document.getElementById("yeniAd").value.trim();
   const birim = +document.getElementById("yeniBirim").value || 300;
