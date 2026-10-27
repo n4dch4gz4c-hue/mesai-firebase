@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Test</title>
+</head>
+<body>
+<div id="loginOverlay" style="position:fixed;inset:0;background:#0b1220;display:flex;align-items:center;justify-content:center;">
+  <div style="background:#fff;padding:32px;border-radius:16px;width:320px;text-align:center;">
+    <h2>Mesai Listesi</h2>
+    <input id="loginPass" type="password" placeholder="Şifre" onkeypress="if(event.key==='Enter')doLogin()" style="width:100%;padding:12px;margin:12px 0;">
+    <button onclick="doLogin()" style="width:100%;padding:12px;background:#1f4b8f;color:#fff;border:none;">Giriş</button>
+    <div id="loginError" style="color:red;margin-top:8px;display:none;">Hatalı</div>
+  </div>
+</div>
+<div id="main" style="display:none;padding:20px;">
+  <h1>Giriş başarılı</h1>
+  <p id="who"></p>
+  <button onclick="location.reload()">Çıkış</button>
+</div>
+<script>
+const USERS = [
+  {name:"Semih", pass:"1903"},
+  {name:"Alper", pass:"1905"}
+];
+function doLogin(){
+  const p = document.getElementById("loginPass").value.trim();
+  const u = USERS.find(x=>x.pass===p);
+  if(!u){ document.getElementById("loginError").style.display="block"; return; }
+  document.getElementById("loginOverlay").style.display="none";
+  document.getElementById("main").style.display="block";
+  document.getElementById("who").textContent = u.name + " giriş yaptı";
+}
+</script>
+</body>
+</html>
