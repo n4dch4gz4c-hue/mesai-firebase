@@ -364,8 +364,8 @@ async function renderDashboard(){
   if(!el) return;
   el.innerHTML = "<div style='padding:16px;'>Yükleniyor...</div>";
 
-  const branches = ["Cadde","Kadıköy","Çengelköy"];
-  const colors = {Cadde:"#c45c26", Kadıköy:"#1f4b8f", "Çengelköy":"#0f7b4c"};
+  const branches = ["Cadde","Kadıköy","Çengelköy","Taksim Pide","Taksim Büfe"];
+  const colors = {Cadde:"#c45c26", Kadıköy:"#1f4b8f", "Çengelköy":"#0f7b4c", "Taksim Pide":"#7c3aed", "Taksim Büfe":"#0ea5e9"};
   const icons = {Cadde:"🏪", Kadıköy:"📍", "Çengelköy":"🌿"};
   const data = {};
   let all = {toplam:0, mesai:0, izin:0, yol:0, ceza:0, kisi:0};
