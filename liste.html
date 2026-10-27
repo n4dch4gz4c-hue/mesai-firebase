@@ -14,7 +14,7 @@ body{font-family:system-ui,sans-serif;margin:0;background:#f4f1ea;color:#1f2933}
 button{padding:8px 14px;border:1px solid #d7cfc3;background:#fff;border-radius:8px;cursor:pointer;font-weight:600}
 button.primary{background:#1f4b8f;color:#fff;border-color:#1f4b8f}
 select,input{padding:8px;border:1px solid #d7cfc3;border-radius:6px}
-.table-wrap{overflow:auto;padding:0 16px 20px;max-height:75vh}
+.table-wrap{overflow:auto;padding:0 16px 0;max-height:calc(100vh - 160px)}
 table{border-collapse:collapse;width:100%;min-width:1200px;background:#fff;font-size:13px}
 th{background:#c45c26;color:#fff;padding:8px 4px;position:sticky;top:0;z-index:2}
 td{border:1px solid #eadfd2;padding:4px;text-align:center}
@@ -47,7 +47,7 @@ input.cell{width:60px;text-align:center;border:1px solid #ddd;border-radius:4px;
   .header > div:last-child{display:flex;flex-wrap:wrap;gap:4px;}
   nav{padding:4px 6px !important;gap:3px !important;overflow-x:auto;-webkit-overflow-scrolling:touch;}
   button.tab{padding:5px 8px;font-size:12px;white-space:nowrap;flex-shrink:0;}
-  .table-wrap{padding:0 2px 0;max-height:calc(100vh - 180px);}
+  .table-wrap{padding:0 2px 0;max-height:calc(100vh - 140px);}
   table{font-size:11px;min-width:600px;}
   th,td{padding:2px 1px;}
   input.cell{width:38px;padding:2px;font-size:11px;}
@@ -140,7 +140,7 @@ input.cell{width:60px;text-align:center;border:1px solid #ddd;border-radius:4px;
 <div id="sec-ozet" style="display:none;padding:16px;"></div>
 
 
-  <button class="primary" onclick="downloadPDF()">PDF İndir</button>
+  
 </div>
 
 <div id="toast"></div>
