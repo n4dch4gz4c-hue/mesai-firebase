@@ -2,35 +2,183 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Test</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3 Şube Mesai Listesi - Firebase</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js"></script>
+<style>
+body{font-family:system-ui,sans-serif;margin:0;background:#f4f1ea;color:#1f2933}
+.header{background:#1f4b8f;color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.header h1{margin:0;font-size:20px}
+button,select{padding:8px 14px;border-radius:8px;border:1px solid #d7cfc3;background:#fff;cursor:pointer}
+button.primary{background:#1f4b8f;color:#fff;border:none}
+.tab{padding:8px 14px;border-radius:6px;cursor:pointer;background:#fff;border:1px solid #ddd}
+.tab.on{background:#1f4b8f;color:#fff}
+.table-wrap{overflow:auto;padding:0 16px 20px;max-height:75vh}
+table{border-collapse:collapse;width:100%;min-width:1200px;background:#fff;font-size:13px}
+th{background:#c45c26;color:#fff;padding:8px 4px;position:sticky;top:0}
+td{border:1px solid #eadfd2;padding:4px;text-align:center}
+td.name{text-align:left !important;font-weight:700;min-width:180px;padding-left:8px}
+input.cell{width:60px;text-align:center;border:1px solid #ddd;border-radius:4px;padding:4px}
+.stats{display:flex;gap:12px;padding:12px 16px;flex-wrap:wrap}
+.stat{background:#fff;border:1px solid #d7cfc3;border-radius:8px;padding:10px 14px}
+@media (max-width:700px){.header{flex-direction:column;align-items:flex-start}.table-wrap{padding:0 8px}table{min-width:700px;font-size:12px}}
+</style>
 </head>
 <body>
-<div id="loginOverlay" style="position:fixed;inset:0;background:#0b1220;display:flex;align-items:center;justify-content:center;">
+<div id="loginOverlay" style="position:fixed;inset:0;background:#0b1220;display:flex;align-items:center;justify-content:center;z-index:9999;">
   <div style="background:#fff;padding:32px;border-radius:16px;width:320px;text-align:center;">
-    <h2>Mesai Listesi</h2>
-    <input id="loginPass" type="password" placeholder="Şifre" onkeypress="if(event.key==='Enter')doLogin()" style="width:100%;padding:12px;margin:12px 0;">
-    <button onclick="doLogin()" style="width:100%;padding:12px;background:#1f4b8f;color:#fff;border:none;">Giriş</button>
-    <div id="loginError" style="color:red;margin-top:8px;display:none;">Hatalı</div>
+    <h2 style="margin:0 0 8px;color:#1f4b8f;">Mesai Listesi</h2>
+    <p style="margin:0 0 20px;color:#666;">Şifrenizi girin</p>
+    <input id="loginPass" type="password" placeholder="Şifre" onkeypress="if(event.key==='Enter')doLogin()" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;margin-bottom:12px;box-sizing:border-box;">
+    <button onclick="doLogin()" style="width:100%;padding:12px;background:#1f4b8f;color:#fff;border:none;border-radius:8px;">Giriş</button>
+    <div id="loginError" style="color:#c45c26;margin-top:12px;display:none;">Hatalı şifre</div>
   </div>
 </div>
-<div id="main" style="display:none;padding:20px;">
-  <h1>Giriş başarılı</h1>
-  <p id="who"></p>
-  <button onclick="location.reload()">Çıkış</button>
+<div class="header">
+  <div><h1>3 Şube Mesai Listesi</h1></div>
+  <div>
+    <select id="branch" onchange="switchBranch()"><option>Cadde</option><option>Kadıköy</option><option>Çengelöy</option></select>
+    <button class="primary" onclick="saveNow()">Kaydet</button>
+    <span id="userName" style="font-size:13px;margin-right:8px;"></span>
+    <button onclick="doLogout()" style="background:#c45c26;color:#fff;border:none;">Çıkış</button>
+  </div>
 </div>
+<nav style="display:flex;gap:6px;padding:10px 16px;background:#fff;border-bottom:1px solid #ddd;flex-wrap:wrap;">
+  <button class="tab on" onclick="showTab('liste',this)">Liste</button>
+  <button class="tab" onclick="showTab('devam',this)">Devamsızlık</button>
+  <button class="tab" onclick="showTab('ceza',this)">Ceza</button>
+  <button class="tab" onclick="showTab('dashboard',this)">Dashboard</button>
+  <button class="tab" onclick="showTab('ozet',this)">Özet</button>
+</nav>
+<div class="stats" id="stats"></div>
+<div id="sec-liste" class="table-wrap"><table><thead><tr><th>#</th><th>AD SOYAD</th><th>Mesai</th><th>HS</th><th>Prim</th><th>Yol</th><th>TOPLAM</th></tr></thead><tbody id="tbody"></tbody></table></div>
+<div id="sec-devam" style="display:none;padding:16px;"></div>
+<div id="sec-ceza" style="display:none;padding:16px;"></div>
+<div id="sec-dashboard" style="display:none;padding:16px;"></div>
+<div id="sec-ozet" style="display:none;padding:16px;"></div>
 <script>
-const USERS = [
-  {name:"Semih", pass:"1903"},
-  {name:"Alper", pass:"1905"}
-];
+const USERS=[{name:"Semih Sofuoğlu",pass:"1903",branches:["Cadde","Kadıköy","Çengelöy"],admin:true},{name:"Alper Kızılkaya",pass:"1905",branches:["Cadde","Kadıköy","Çengelöy"],admin:true},{name:"Özay Alşan",pass:"367536",branches:["Kadıköy"]},{name:"Sedat Kızılkaya",pass:"345334",branches:["Kadıköy"]},{name:"Ahmet Özçelik",pass:"5353",branches:["Çengelöy"]},{name:"Kemal Körpe",pass:"1919",branches:["Çengelöy"]},{name:"İsmail",pass:"3434",branches:["Çengelöy"]},{name:"Ferhat Avcı",pass:"5656",branches:["Cadde"]}];
+let currentUser=null;
+function doLogout(){sessionStorage.removeItem("mesaiUser");currentUser=null;document.getElementById("loginOverlay").style.display="flex";document.getElementById("loginPass").value="";}
 function doLogin(){
-  const p = document.getElementById("loginPass").value.trim();
-  const u = USERS.find(x=>x.pass===p);
-  if(!u){ document.getElementById("loginError").style.display="block"; return; }
+  const p=(document.getElementById("loginPass").value||"").trim();
+  const u=USERS.find(x=>x.pass===p);
+  if(!u){document.getElementById("loginError").style.display="block";return;}
+  currentUser=u;
+  sessionStorage.setItem("mesaiUser",JSON.stringify(u));
   document.getElementById("loginOverlay").style.display="none";
-  document.getElementById("main").style.display="block";
-  document.getElementById("who").textContent = u.name + " giriş yaptı";
+  applyUserAccess();
+  setTimeout(load,50);
 }
+function applyUserAccess(){
+  if(!currentUser)return;
+  document.getElementById("userName").textContent=currentUser.name;
+  const sel=document.getElementById("branch");
+  if(sel){
+    Array.from(sel.options).forEach(opt=>{
+      opt.disabled=!currentUser.branches.includes(opt.value);
+      opt.style.display=currentUser.branches.includes(opt.value)?"":"none";
+    });
+    const first=currentUser.branches[0];
+    if(first){sel.value=first;branch=first;}
+  }
+  const dash=document.querySelector('button.tab[onclick*="dashboard"]');
+  if(dash)dash.style.display=currentUser.admin?"":"none";
+}
+(function(){
+  try{
+    const s=sessionStorage.getItem("mesaiUser");
+    if(s){currentUser=JSON.parse(s);document.getElementById("loginOverlay").style.display="none";applyUserAccess();}
+  }catch(e){}
+})();
+const firebaseConfig={apiKey:"AIzaSyBHgiy7cM5TRYz2zuwY6CeFJwrqsVCaZjk",authDomain:"cadde-mesai.firebaseapp.com",databaseURL:"https://cadde-mesai-default-rtdb.europe-west1.firebasedatabase.app",projectId:"cadde-mesai",storageBucket:"cadde-mesai.firebasestorage.app",messagingSenderId:"622996188078",appId:"1:622996188078:web:22962c989bedc87c02363f"};
+firebase.initializeApp(firebaseConfig);
+const db=firebase.database();
+const SEED={"Cadde":[{"id":1,"name":"CEMAL ÇELİK","kurye":false,"mesaiSaat":0,"mesaiBirim":320,"hsSaat":0,"primAdet":0,"yolTutar":8000,"izinGun":0,"izinTutar":0,"yillikTutar":0,"disiplinDk":0}],"Kadıköy":[],"Çengelöy":[]};
+let branch="Cadde";
+let state={people:[],cezalar:[],devamsizlik:[]};
+function tl(n){return Math.round(n||0).toLocaleString("tr-TR");}
+function dash(n){return (Math.round(n)||0)===0?"-":tl(n);}
+function calc(p){
+  const mesai=(p.mesaiSaat||0)*(p.mesaiBirim||300);
+  const hs=(p.hsSaat||0)*2500;
+  const prim=(branch==="Cadde"&&p.kurye)?(p.primAdet||0)*7:0;
+  const yol=p.yolTutar||0;
+  return {mesai,hs,prim,yol,toplam:mesai+hs+prim+yol};
+}
+function render(){
+  const tb=document.getElementById("tbody");
+  tb.innerHTML="";
+  let top=0;
+  (state.people||[]).forEach((p,i)=>{
+    const c=calc(p);top+=c.toplam;
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${i+1}</td><td class="name">${p.name||""}</td><td><input class="cell" type="number" value="${p.mesaiSaat||0}" onchange="setP(${i},'mesaiSaat',this.value)"></td><td>${dash(c.mesai)}</td><td><input class="cell" type="number" value="${p.hsSaat||0}" onchange="setP(${i},'hsSaat',this.value)"></td><td>${dash(c.hs)}</td><td>${dash(c.prim)}</td><td><input class="cell" type="number" value="${p.yolTutar||0}" onchange="setP(${i},'yolTutar',this.value)"></td><td class="formula">${dash(c.toplam)}</td>`;
+    tb.appendChild(tr);
+  });
+  document.getElementById("stats").innerHTML=`<div class="stat"><b>${state.people.length}</b> kişi</div><div class="stat"><b>${tl(top)} TL</b></div>`;
+}
+function setP(i,k,v){if(state.people[i])state.people[i][k]=+v||0;render();}
+function saveNow(){db.ref("mesai/"+branch).set(state).then(()=>toast("Kaydedildi")).catch(e=>toast(e.message));}
+function switchBranch(){branch=document.getElementById("branch").value;load();}
+function showTab(name,el){
+  ["liste","devam","ceza","dashboard","ozet"].forEach(s=>document.getElementById("sec-"+s).style.display=s===name?"block":"none");
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("on"));
+  el.classList.add("on");
+  if(name==="ozet")renderOzet();
+  if(name==="dashboard")renderDashboard();
+}
+function toast(m){const t=document.createElement("div");t.style.cssText="position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 18px;border-radius:8px;z-index:99";t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2000);}
+function renderOzet(){
+  const el=document.getElementById("sec-ozet");
+  let tot=0;
+  const rows=(state.people||[]).map((p,i)=>{const c=calc(p);tot+=c.toplam;return `<tr><td>${i+1}</td><td style="text-align:left;padding-left:8px;">${p.name}</td><td style="text-align:right;font-weight:700;">${dash(c.toplam)}</td></tr>`;}).join("");
+  el.innerHTML=`<button onclick="downloadPDF('kisa')">Kısa PDF</button> <button onclick="downloadPDF('detay')">Ayrıntılı PDF</button><table style="max-width:480px;width:100%;margin-top:12px;"><thead><tr style="background:#1f4b8f;color:#fff;"><th>#</th><th>Ad</th><th>Toplam</th></tr></thead><tbody>${rows}</tbody><tfoot><tr style="background:#222;color:#fff;"><td></td><td>TOPLAM</td><td style="text-align:right;">${tl(tot)} TL</td></tr></tfoot></table>`;
+}
+function downloadPDF(kind){
+  if(!window.jspdf)return toast("PDF yok");
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:kind==="kisa"?"portrait":"landscape",unit:"mm",format:"a4"});
+  doc.setFillColor(11,18,32);doc.rect(0,0,doc.internal.pageSize.getWidth(),12,"F");
+  doc.setFontSize(12);doc.setTextColor(255);doc.text(branch+" · "+(kind==="kisa"?"KISA":"LISTE"),10,8);
+  if(kind==="kisa"){
+    const body=(state.people||[]).map((p,i)=>[i+1,p.name||"",dash(calc(p).toplam)]);
+    let tot=0;(state.people||[]).forEach(p=>tot+=calc(p).toplam);
+    doc.autoTable({startY:16,head:[["No","Ad","Tutar"]],body,foot:[["","TOPLAM",tl(tot)]],theme:"grid",styles:{fontSize:8},headStyles:{fillColor:[31,75,143]},footStyles:{fillColor:[34,34,34],textColor:255},columnStyles:{1:{halign:"left"}}});
+  }else{
+    const body=(state.people||[]).map((p,i)=>{const c=calc(p);return [i+1,p.name||"",dash(c.mesai),dash(c.hs),dash(c.yol),dash(c.toplam)];});
+    doc.autoTable({startY:16,head:[["No","Ad","Mesai","HS","Yol","Toplam"]],body,theme:"grid",styles:{fontSize:7},headStyles:{fillColor:[31,75,143]},columnStyles:{1:{halign:"left"}}});
+  }
+  doc.save(branch+"-"+(kind==="kisa"?"kisa":"liste")+".pdf");
+}
+async function renderDashboard(){
+  const el=document.getElementById("sec-dashboard");
+  el.innerHTML="Yükleniyor...";
+  const branches=["Cadde","Kadıköy","Çengelöy"];
+  const colors={Cadde:"#c45c26",Kadıköy:"#1f4b8f","Çengelöy":"#0f7b4c"};
+  let cards="",grand=0;
+  for(const b of branches){
+    try{
+      const snap=await db.ref("mesai/"+b).once("value");
+      const d=snap.val()||{};
+      let t=0,k=0;(d.people||[]).forEach(p=>{k++;t+=calc(p).toplam;});
+      grand+=t;
+      cards+=`<div style="background:#fff;border-radius:14px;padding:16px;border-top:5px solid ${colors[b]};"><b>${b}</b><div style="font-size:24px;font-weight:800;color:${colors[b]};">${tl(t)} TL</div><div>${k} kişi</div></div>`;
+    }catch(e){}
+  }
+  el.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">${cards}</div><div style="margin-top:12px;font-size:20px;font-weight:700;">Genel: ${tl(grand)} TL</div>`;
+}
+function load(){
+  db.ref("mesai/"+branch).on("value",snap=>{
+    const d=snap.val();
+    if(d&&d.people){state=d;if(!state.cezalar)state.cezalar=[];if(!state.devamsizlik)state.devamsizlik=[];render();}
+    else if(SEED[branch]&&SEED[branch].length){state={people:SEED[branch],cezalar:[],devamsizlik:[]};render();}
+  });
+}
+load();
 </script>
 </body>
 </html>
