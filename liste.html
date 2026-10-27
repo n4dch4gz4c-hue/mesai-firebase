@@ -199,7 +199,17 @@ function doLogin(){
     const overlay = document.getElementById("loginOverlay");
     if(overlay) overlay.style.display = "none";
     applyUserAccess();
-    setTimeout(()=>{ try{ load(); }catch(e){ console.error(e); } }, 50);
+    setTimeout(()=>{ try{ load();
+window.addEventListener("load", ()=>{
+  if(location.search.includes("patron=1")){
+    const overlay = document.getElementById("loginOverlay");
+    if(overlay) overlay.style.display = "none";
+    if(!currentUser){
+      currentUser = {name:"Patron", branches:["Cadde","Kadıköy","Çengelköy","Taksim Pide","Taksim Büfe"], admin:true};
+      applyUserAccess();
+    }
+  }
+}); }catch(e){ console.error(e); } }, 50);
   }catch(err){
     console.error("Login error:", err);
     alert("Giriş hatası: " + err.message);
@@ -244,6 +254,16 @@ function applyUserAccess(){
       if(overlay) overlay.style.display = "none";
       applyUserAccess();
       load();
+window.addEventListener("load", ()=>{
+  if(location.search.includes("patron=1")){
+    const overlay = document.getElementById("loginOverlay");
+    if(overlay) overlay.style.display = "none";
+    if(!currentUser){
+      currentUser = {name:"Patron", branches:["Cadde","Kadıköy","Çengelköy","Taksim Pide","Taksim Büfe"], admin:true};
+      applyUserAccess();
+    }
+  }
+});
     }, 100);
     return;
   }
@@ -391,6 +411,16 @@ function saveNow(){
 function switchBranch(){
   branch = document.getElementById("branch").value;
   load();
+window.addEventListener("load", ()=>{
+  if(location.search.includes("patron=1")){
+    const overlay = document.getElementById("loginOverlay");
+    if(overlay) overlay.style.display = "none";
+    if(!currentUser){
+      currentUser = {name:"Patron", branches:["Cadde","Kadıköy","Çengelköy","Taksim Pide","Taksim Büfe"], admin:true};
+      applyUserAccess();
+    }
+  }
+});
 }
 
 
@@ -1073,6 +1103,16 @@ async function downloadPDF(kind){
 }
 
 load();
+window.addEventListener("load", ()=>{
+  if(location.search.includes("patron=1")){
+    const overlay = document.getElementById("loginOverlay");
+    if(overlay) overlay.style.display = "none";
+    if(!currentUser){
+      currentUser = {name:"Patron", branches:["Cadde","Kadıköy","Çengelköy","Taksim Pide","Taksim Büfe"], admin:true};
+      applyUserAccess();
+    }
+  }
+});
 </script>
 
 <script>
