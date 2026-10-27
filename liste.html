@@ -202,15 +202,22 @@ function applyUserAccess(){
   const sel = document.getElementById("branch");
   if(sel){
     Array.from(sel.options).forEach(opt => {
-      opt.disabled = !currentUser.branches.includes(opt.value);
-      opt.style.display = currentUser.branches.includes(opt.value) ? "" : "none";
+      const allowed = currentUser.branches.includes(opt.value);
+      opt.disabled = !allowed;
+      opt.style.display = allowed ? "" : "none";
     });
+    // Force first allowed branch
     const first = currentUser.branches[0];
-    if(first){ sel.value = first; branch = first; }
+    if(first && sel.value !== first && !currentUser.branches.includes(sel.value)){
+      sel.value = first;
+      branch = first;
+    } else if(first){
+      branch = sel.value;
+    }
   }
   const dashBtn = document.querySelector('button.tab[onclick*="dashboard"], .tab[onclick*="dashboard"]');
   const kuryeBtn = document.querySelector('button.tab[onclick*="kurye"]');
-  if(kuryeBtn) kuryeBtn.style.display = branch==="Cadde" ? "" : "none";
+  if(kuryeBtn) kuryeBtn.style.display = (branch==="Cadde") ? "" : "none";
   if(dashBtn) dashBtn.style.display = currentUser.admin ? "" : "none";
 }
 
