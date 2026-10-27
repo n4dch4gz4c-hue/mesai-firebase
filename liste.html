@@ -528,6 +528,7 @@ function renderDuzenle(){
       <td>${i+1}</td>
       <td><input value="${p.name||""}" onchange="setPName(${i},this.value)" style="width:140px;font-size:11px;padding:2px 4px;"></td>
       <td><input type="number" value="${p.mesaiBirim||300}" onchange="setP(${i},'mesaiBirim',this.value)" style="width:70px;"></td>
+      <td><input type="number" value="${p.hsBirim||(branch==='Çengelköy'?1000:2500)}" onchange="setP(${i},'hsBirim',this.value)" style="width:70px;background:#fff8e6;"></td>
       <td><input type="number" value="${p.izinBirim||izinMap[p.name]||0}" onchange="setP(${i},'izinBirim',this.value)" style="width:70px;background:#fff8e6;"></td>
       ${isCadde?`<td><input type="checkbox" ${p.kurye?"checked":""} onchange="setKurye(${i},this.checked)"></td>`:""}
       <td><button onclick="silKisi(${i})" style="background:#c45c26;color:#fff;border:none;padding:4px 8px;">Sil</button></td>
@@ -541,7 +542,7 @@ function renderDuzenle(){
     </div>
     <table style="width:100%;max-width:700px;">
       <thead><tr style="background:#1f4b8f;color:#fff;">
-        <th>#</th><th>Ad Soyad</th><th>Saatlik</th><th>İzin Birim</th>${isCadde?"<th>Kurye</th>":""}<th></th>
+        <th>#</th><th>Ad Soyad</th><th>Saatlik</th><th>HS Birim</th><th>İzin Birim</th>${isCadde?"<th>Kurye</th>":""}<th></th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>`;
