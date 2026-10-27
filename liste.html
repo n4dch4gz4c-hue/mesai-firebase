@@ -230,10 +230,23 @@ function applyUserAccess(){
   const kuryeBtn = document.querySelector('button.tab[onclick*="kurye"]');
   if(kuryeBtn) kuryeBtn.style.display = (branch==="Cadde") ? "" : "none";
   if(dashBtn) dashBtn.style.display = currentUser.admin ? "" : "none";
+  
 }
 
 // Auto login if session exists
 (function(){
+  const params = new URLSearchParams(location.search);
+  if(params.get("patron")==="1"){
+    currentUser = {name:"Patron", pass:"", branches:["Cadde","Kadıköy","Çengelköy","Taksim Pide","Taksim Büfe"], admin:true, patron:true};
+    sessionStorage.setItem("mesaiUser", JSON.stringify(currentUser));
+    setTimeout(()=>{
+      const overlay = document.getElementById("loginOverlay");
+      if(overlay) overlay.style.display = "none";
+      applyUserAccess();
+      load();
+    }, 100);
+    return;
+  }
   try{
     const saved = sessionStorage.getItem("mesaiUser");
     if(saved){
