@@ -47,7 +47,7 @@ input.cell{width:60px;text-align:center;border:1px solid #ddd;border-radius:4px;
   .header > div:last-child{display:flex;flex-wrap:wrap;gap:4px;}
   nav{padding:4px 6px !important;gap:3px !important;overflow-x:auto;-webkit-overflow-scrolling:touch;}
   button.tab{padding:5px 8px;font-size:12px;white-space:nowrap;flex-shrink:0;}
-  .table-wrap{padding:0 2px 8px;max-height:55vh;}
+  .table-wrap{padding:0 2px 0;max-height:calc(100vh - 180px);}
   table{font-size:11px;min-width:600px;}
   th,td{padding:2px 1px;}
   input.cell{width:38px;padding:2px;font-size:11px;}
@@ -60,7 +60,8 @@ input.cell{width:60px;text-align:center;border:1px solid #ddd;border-radius:4px;
 
 
 @media (max-width: 800px){
-  #sec-ceza, #sec-devam, #sec-kurye, #sec-duzenle{padding:8px 4px !important;}
+  body{font-size:12px;}
+  #sec-ceza, #sec-devam, #sec-kurye, #sec-duzenle{padding:6px 2px !important;}
   #sec-ceza table, #sec-devam table, #sec-kurye table, #sec-duzenle table{
     font-size:10px; width:100%; min-width:0;
   }
@@ -289,7 +290,7 @@ function render(){
       card.innerHTML = `
         <div onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'" style="display:flex;align-items:center;gap:10px;cursor:pointer;">
           <div style="width:34px;height:34px;border-radius:50%;background:${color};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;">${i+1}</div>
-          <div style="flex:1;font-weight:700;font-size:14px;">${p.name||""}</div>
+          <div style="flex:1;font-weight:700;font-size:13px;">${p.name||""}</div>
           <div style="font-weight:800;color:${color};font-size:15px;">${dash(c.toplam)}</div>
         </div>
         <div style="display:none;margin-top:10px;padding-top:8px;border-top:1px solid #eee;font-size:12px;">
