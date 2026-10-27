@@ -289,20 +289,22 @@ function render(){
     (state.people||[]).forEach((p,i)=>{
       const c = calc(p); sTop += c.toplam;
       const card = document.createElement("div");
-      card.style.cssText = "background:#fff;border-radius:12px;padding:10px 12px;margin:6px 8px;box-shadow:0 1px 3px rgba(0,0,0,.06);border-left:4px solid #0f7b4c;";
+      card.style.cssText = "background:#fff;border-radius:10px;padding:8px 10px;margin:4px 6px;box-shadow:0 1px 2px rgba(0,0,0,.05);border-left:3px solid #0f7b4c;";
       const color = c.toplam > 0 ? "#0f7b4c" : "#c45c26";
       card.innerHTML = `
-        <div onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'" style="display:flex;align-items:center;gap:10px;cursor:pointer;">
-          <div style="width:34px;height:34px;border-radius:50%;background:${color};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;">${i+1}</div>
-          <div style="flex:1;font-weight:700;font-size:13px;">${p.name||""}</div>
-          <div style="font-weight:800;color:${color};font-size:15px;">${dash(c.toplam)}</div>
+        <div onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'" style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:2px 0;">
+          <div style="width:28px;height:28px;border-radius:50%;background:${color};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0;">${i+1}</div>
+          <div style="flex:1;font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.name||""}</div>
+          <div style="font-weight:800;color:${color};font-size:14px;flex-shrink:0;">${dash(c.toplam)}</div>
         </div>
-        <div style="display:none;margin-top:10px;padding-top:8px;border-top:1px solid #eee;font-size:12px;">
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <span>Mesai <input class="cell" type="number" step="0.5" value="${p.mesaiSaat||0}" onchange="setP(${i},'mesaiSaat',this.value)" style="width:50px;"></span>
-            <span>HS <input class="cell" type="number" step="0.5" value="${p.hsSaat||0}" onchange="setP(${i},'hsSaat',this.value)" style="width:50px;"></span>
-            <span>Yol <input class="cell" type="number" value="${p.yolTutar||0}" onchange="setP(${i},'yolTutar',this.value)" style="width:60px;"></span>
-            ${(branch==="Cadde"&&p.kurye)?'<span>Prim <input class="cell" type="number" value="'+(p.primAdet||0)+'" onchange="setP('+i+',\'primAdet\',this.value)" style="width:46px;"></span>':''}
+        <div style="display:none;margin-top:8px;padding:8px 0 4px;border-top:1px solid #eee;font-size:11px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+            <div><div style="color:#666;margin-bottom:2px;">Mesai</div><input class="cell" type="number" step="0.5" value="${p.mesaiSaat||0}" onchange="setP(${i},'mesaiSaat',this.value)" style="width:100%;"></div>
+            <div><div style="color:#666;margin-bottom:2px;">HS</div><input class="cell" type="number" step="0.5" value="${p.hsSaat||0}" onchange="setP(${i},'hsSaat',this.value)" style="width:100%;"></div>
+            <div><div style="color:#666;margin-bottom:2px;">Yol</div><input class="cell" type="number" value="${p.yolTutar||0}" onchange="setP(${i},'yolTutar',this.value)" style="width:100%;"></div>
+            <div><div style="color:#666;margin-bottom:2px;">İzin gün</div><input class="cell" type="number" value="${p.izinGun||0}" onchange="setP(${i},'izinGun',this.value)" style="width:100%;"></div>
+            <div><div style="color:#666;margin-bottom:2px;">İzin TL</div><input class="cell" type="number" value="${p.izinTutar||0}" onchange="setP(${i},'izinTutar',this.value)" style="width:100%;"></div>
+            <div><div style="color:#666;margin-bottom:2px;">Yıllık</div><input class="cell" type="number" value="${p.yillikTutar||0}" onchange="setP(${i},'yillikTutar',this.value)" style="width:100%;"></div>
           </div>
         </div>`;
       wrap.appendChild(card);
