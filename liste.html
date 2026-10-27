@@ -183,6 +183,7 @@ let currentUser = null;
 function doLogout(){
   sessionStorage.removeItem("mesaiUser");
   currentUser = null;
+  state = {people:[], cezalar:[], devamsizlik:[]};
   document.getElementById("loginOverlay").style.display = "flex";
   document.getElementById("loginPass").value = "";
   document.getElementById("loginError").style.display = "none";
