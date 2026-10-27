@@ -40,21 +40,22 @@ input.cell{width:60px;text-align:center;border:1px solid #ddd;border-radius:4px;
 }
 
 
-@media (max-width: 700px){
-  .header{padding:10px;flex-direction:column;align-items:flex-start;gap:6px;}
-  .header h1{font-size:16px;}
-  nav{padding:6px 8px !important;gap:4px !important;overflow-x:auto;}
-  button.tab{padding:6px 8px;font-size:12px;white-space:nowrap;}
-  .table-wrap{padding:0 4px 12px;max-height:60vh;}
-  table{font-size:11px;min-width:100%;}
-  th,td{padding:3px 2px;}
-  input.cell{width:42px;padding:2px;font-size:12px;}
-  .stats{padding:6px 8px;font-size:12px;gap:6px;}
-  .stat{padding:6px 8px;min-width:auto;}
-  #loginOverlay > div{width:92%;padding:20px;}
-  /* Card style for mobile tables */
-  .mobile-card{background:#fff;border-radius:10px;padding:10px;margin:6px 8px;box-shadow:0 1px 3px rgba(0,0,0,.08);}
-  .mobile-card b{display:block;margin-bottom:4px;}
+@media (max-width: 800px){
+  body{font-size:14px;}
+  .header{padding:8px 10px;flex-direction:column;align-items:stretch;gap:6px;}
+  .header h1{font-size:15px;margin:0;}
+  .header > div:last-child{display:flex;flex-wrap:wrap;gap:4px;}
+  nav{padding:4px 6px !important;gap:3px !important;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  button.tab{padding:5px 8px;font-size:12px;white-space:nowrap;flex-shrink:0;}
+  .table-wrap{padding:0 2px 8px;max-height:55vh;}
+  table{font-size:11px;min-width:600px;}
+  th,td{padding:2px 1px;}
+  input.cell{width:38px;padding:2px;font-size:11px;}
+  .stats{padding:4px 6px;font-size:11px;gap:4px;}
+  .stat{padding:4px 6px;min-width:auto;}
+  #loginOverlay > div{width:94%;padding:16px;}
+  select{font-size:13px;padding:6px;}
+  button{padding:6px 10px;font-size:13px;}
 }
 
 </style>
