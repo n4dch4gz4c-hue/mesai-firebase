@@ -260,17 +260,20 @@ function render(){
     (state.people||[]).forEach((p,i)=>{
       const c = calc(p); sTop += c.toplam;
       const card = document.createElement("div");
-      card.style.cssText = "background:#fff;border-radius:12px;padding:12px;margin:6px 8px;box-shadow:0 1px 3px rgba(0,0,0,.08);";
+      card.style.cssText = "background:#fff;border-radius:12px;padding:10px 12px;margin:6px 8px;box-shadow:0 1px 3px rgba(0,0,0,.06);border-left:4px solid #c45c26;";
+      const color = c.toplam > 0 ? "#0f7b4c" : "#c45c26";
       card.innerHTML = `
-        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-          <b>${p.name||""}</b>
-          <span style="font-weight:800;color:#1f4b8f;">${dash(c.toplam)}</span>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:32px;height:32px;border-radius:50%;background:${color};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;">${i+1}</div>
+          <div style="flex:1;">
+            <div style="font-weight:700;font-size:14px;">${p.name||""}</div>
+          </div>
+          <div style="font-weight:800;color:${color};font-size:15px;">${dash(c.toplam)}</div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:12px;">
-          <div>Mesai <input class="cell" type="number" step="0.5" value="${p.mesaiSaat||0}" onchange="setP(${i},'mesaiSaat',this.value)" style="width:48px;"></div>
-          <div>HS <input class="cell" type="number" step="0.5" value="${p.hsSaat||0}" onchange="setP(${i},'hsSaat',this.value)" style="width:48px;"></div>
-          <div>Yol <input class="cell" type="number" value="${p.yolTutar||0}" onchange="setP(${i},'yolTutar',this.value)" style="width:56px;"></div>
-          <div>${p.kurye?'Prim <input class="cell" type="number" value="'+(p.primAdet||0)+'" onchange="setP('+i+',\'primAdet\',this.value)" style="width:42px;">':''}</div>
+        <div style="margin-top:8px;display:flex;gap:8px;font-size:11px;color:#666;">
+          <span>Mesai <input class="cell" type="number" step="0.5" value="${p.mesaiSaat||0}" onchange="setP(${i},'mesaiSaat',this.value)" style="width:40px;padding:2px;"></span>
+          <span>HS <input class="cell" type="number" step="0.5" value="${p.hsSaat||0}" onchange="setP(${i},'hsSaat',this.value)" style="width:40px;padding:2px;"></span>
+          <span>Yol <input class="cell" type="number" value="${p.yolTutar||0}" onchange="setP(${i},'yolTutar',this.value)" style="width:50px;padding:2px;"></span>
         </div>`;
       wrap.appendChild(card);
     });
