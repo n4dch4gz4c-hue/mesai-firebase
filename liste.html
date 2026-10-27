@@ -126,6 +126,7 @@ input.cell{width:60px;text-align:center;border:1px solid #ddd;border-radius:4px;
   <button class="tab" onclick="showTab('dashboard',this)">Dashboard</button>
   <button class="tab" onclick="showTab('kurye',this)">Kurye</button>
   <button class="tab" onclick="showTab('duzenle',this)">Düzenleme</button>
+  <button class="tab" onclick="showTab('harf',this)">Harf Birimi</button>
   <button class="tab" onclick="showTab('yetkili',this)">Yetkili</button>
   <button class="tab" onclick="showTab('ozet',this)">Özet</button>
 </nav>
@@ -151,6 +152,7 @@ input.cell{width:60px;text-align:center;border:1px solid #ddd;border-radius:4px;
 <div id="sec-dashboard" style="display:none;padding:16px;"></div>
 <div id="sec-kurye" style="display:none;padding:16px;"></div>
 <div id="sec-duzenle" style="display:none;padding:16px;"></div>
+<div id="sec-harf" style="display:none;padding:16px;"></div>
 <div id="sec-yetkili" style="display:none;padding:16px;"></div>
 <div id="sec-ozet" style="display:none;padding:16px;"></div>
 
@@ -330,6 +332,7 @@ function showTab(name, btn){
   if(name==="duzenle") renderDuzenle();
   if(name==="kurye") renderKurye();
   if(name==="yetkili") renderYetkili();
+  if(name==="harf") renderHarf();
   if(name==="dashboard") renderDashboard();
 }
 
@@ -552,6 +555,37 @@ function savePrevSnapshot(){
 
 
 
+
+
+function renderHarf(){
+  const el = document.getElementById("sec-harf");
+  if(!el) return;
+  const t = TEMPLATES[branch] || {};
+  let rows = "";
+  ["A","B","C","D"].forEach(letter=>{
+    const v = t[letter] || {mesaiBirim:0, izinBirim:0, hsBirim:0};
+    rows += `<tr>
+      <td><b>${letter}</b></td>
+      <td><input type="number" value="${v.mesaiBirim||0}" onchange="setTemplate('${letter}','mesaiBirim',this.value)" style="width:70px;"></td>
+      <td><input type="number" value="${v.izinBirim||0}" onchange="setTemplate('${letter}','izinBirim',this.value)" style="width:70px;"></td>
+      <td><input type="number" value="${v.hsBirim||0}" onchange="setTemplate('${letter}','hsBirim',this.value)" style="width:70px;"></td>
+    </tr>`;
+  });
+  el.innerHTML = `
+    <h3>${branch} Harf Birimleri</h3>
+    <table style="max-width:400px;width:100%;">
+      <thead><tr style="background:#1f4b8f;color:#fff;"><th>Harf</th><th>Saatlik</th><th>İzin</th><th>HS</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <p style="font-size:12px;color:#666;margin-top:8px;">Değişiklik anında kaydedilir. Yıl başında buradan güncelle.</p>`;
+}
+function setTemplate(letter, key, val){
+  if(!TEMPLATES[branch]) TEMPLATES[branch] = {};
+  if(!TEMPLATES[branch][letter]) TEMPLATES[branch][letter] = {};
+  TEMPLATES[branch][letter][key] = +val||0;
+  db.ref("templates/"+branch+"/"+letter).set(TEMPLATES[branch][letter]);
+  toast(letter + " güncellendi");
+}
 
 function renderYetkili(){
   const el = document.getElementById("sec-yetkili");
