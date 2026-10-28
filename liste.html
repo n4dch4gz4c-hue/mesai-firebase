@@ -114,6 +114,7 @@ input.cell{width:60px;text-align:center;border:1px solid #ddd;border-radius:4px;
       <option>Taksim Büfe</option>
     </select>
     <button class="primary" onclick="saveNow()">Kaydet</button>
+    <button onclick="arsivleSifirla()" style="background:#c45c26;color:#fff;border:none;">Arşivle & Sıfırla</button>
     <span id="userName" style="font-size:13px;margin-right:8px;opacity:.9;"></span>
     <button onclick="doLogout()" style="background:#c45c26;color:#fff;border:none;">Çıkış</button>
   </div>
@@ -410,6 +411,34 @@ function setP(i,k,v){
 
 function saveNow(){
   db.ref("mesai/"+branch).set(state).then(()=>toast("Kaydedildi – herkes görür")).catch(e=>toast("Hata: "+e.message));
+}
+
+function arsivleSifirla(){
+  if(!confirm(branch + " şubesini arşivleyip sıfırlamak istediğine emin misin?\nKişiler ve birimler kalır, sadece bu ayın verileri sıfırlanır.")) return;
+  const now = new Date();
+  const ay = now.getFullYear() + "-" + String(now.getMonth()+1).padStart(2,"0");
+  // Arşivle
+  db.ref("arsiv/"+branch+"/"+ay).set(state).then(()=>{
+    // Sıfırla
+    if(state.people){
+      state.people.forEach(p=>{
+        p.mesaiSaat = 0;
+        p.hsSaat = 0;
+        p.primAdet = 0;
+        p.yolTutar = 0;
+        p.izinGun = 0;
+        p.izinTutar = 0;
+        p.yillikTutar = 0;
+        p.disiplinDk = 0;
+      });
+    }
+    state.cezalar = [];
+    state.devamsizlik = [];
+    db.ref("mesai/"+branch).set(state).then(()=>{
+      toast(ay + " arşivlendi, veriler sıfırlandı");
+      render();
+    });
+  }).catch(e=>toast("Hata: "+e.message));
 }
 
 function switchBranch(){
