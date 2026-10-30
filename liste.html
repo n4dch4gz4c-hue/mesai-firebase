@@ -147,7 +147,7 @@ input.cell{width:60px;text-align:center;border:1px solid #ddd;border-radius:4px;
   <th>Mesai Saat</th><th>Mesai</th>
   <th>HS Saat</th><th>HS</th>
   <th>Prim Adet</th><th>Prim</th>
-  <th>Yol</th><th>İzin</th><th>Yıllık</th><th>Disiplin</th>
+  <th>Yol</th><th>İzin</th><th>Yıllık</th><th>Tezgah</th><th>Disiplin</th>
   <th>TOPLAM</th>
 </tr>
 </thead>
@@ -380,7 +380,8 @@ function calc(p){
   const izin = (p.izinGun||0) * (p.izinBirim||0);
   const yillik = p.yillikTutar||0;
   const dis = (p.disiplinDk||0);
-  return {mesai, hs, prim, yol, izin, yillik, dis, toplam: mesai+hs+prim+yol+izin+yillik+dis};
+  const tezgah = p.tezgahTip||0;
+  return {mesai, hs, prim, yol, izin, yillik, dis, tezgah, toplam: mesai+hs+prim+yol+izin+yillik+tezgah-dis};
 }
 
 
@@ -447,7 +448,7 @@ function render(){
       const origIdx = (state.people||[]).indexOf(p);
       const c = calc(p); sTop += c.toplam;
       const tr = document.createElement("tr");
-      tr.innerHTML = `<td>${i+1}</td><td class="name">${p.name||""}</td><td><input class="cell" type="number" step="0.5" value="${p.mesaiSaat||0}" onchange="setP(${origIdx},'mesaiSaat',this.value)"></td><td>${dash(c.mesai)}</td><td><input class="cell" type="number" step="0.5" value="${p.hsSaat||0}" onchange="setP(${origIdx},'hsSaat',this.value)"></td><td>${dash(c.hs)}</td><td>${(branch==="Cadde"&&p.kurye)?`<input class="cell" style="width:46px" type="number" value="${p.primAdet||0}" onchange="setP(${origIdx},'primAdet',this.value)">`:'-'}</td><td>${dash(c.prim)}</td><td><input class="cell" type="number" value="${p.yolTutar||0}" onchange="setP(${origIdx},'yolTutar',this.value)"></td><td><input class="cell" type="number" value="${p.izinGun||0}" onchange="setP(${origIdx},'izinGun',this.value)"></td><td>${dash(c.yillik)}</td><td>${dash((p.disiplinDk||0))}</td><td class="formula">${dash(c.toplam)}</td>`;
+      tr.innerHTML = `<td>${i+1}</td><td class="name">${p.name||""}</td><td><input class="cell" type="number" step="0.5" value="${p.mesaiSaat||0}" onchange="setP(${origIdx},'mesaiSaat',this.value)"></td><td>${dash(c.mesai)}</td><td><input class="cell" type="number" step="0.5" value="${p.hsSaat||0}" onchange="setP(${origIdx},'hsSaat',this.value)"></td><td>${dash(c.hs)}</td><td>${(branch==="Cadde"&&p.kurye)?`<input class="cell" style="width:46px" type="number" value="${p.primAdet||0}" onchange="setP(${origIdx},'primAdet',this.value)">`:'-'}</td><td>${dash(c.prim)}</td><td><input class="cell" type="number" value="${p.yolTutar||0}" onchange="setP(${origIdx},'yolTutar',this.value)"></td><td><input class="cell" type="number" value="${p.izinGun||0}" onchange="setP(${origIdx},'izinGun',this.value)"></td><td>${dash(c.yillik)}</td><td><input class="cell" type="number" value="${p.tezgahTip||0}" onchange="setP(${origIdx},'tezgahTip',this.value)"></td><td>${dash((p.disiplinDk||0))}</td><td class="formula">${dash(c.toplam)}</td>`;
       tb.appendChild(tr);
     });
   }
