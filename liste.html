@@ -374,7 +374,7 @@ function dash(n){ return (Math.round(n)||0)===0 ? "-" : tl(n); }
 
 function calc(p){
   const mesai = (p.mesaiSaat||0) * (p.mesaiBirim||300);
-  const hs = (p.hsSaat||0) * 2500;
+  const hs = (p.hsSaat||0) * (p.hsBirim||2500);
   const prim = (branch==="Cadde" && p.kurye) ? (p.primAdet||0)*PRIM_BIRIM : 0;
   const yol = p.yolTutar||0;
   const izin = (p.izinGun||0) * (p.izinBirim||0);
