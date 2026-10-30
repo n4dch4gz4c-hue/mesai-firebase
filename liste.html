@@ -2,11 +2,1263 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1f4b8f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>3 Şube Mesai Listesi - Firebase</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<style>
+body{font-family:system-ui,sans-serif;margin:0;background:#f4f1ea;color:#1f2933}
+.header{background:#1f4b8f;color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.header h1{margin:0;font-size:20px}
+.controls{display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px;background:#fff;border-bottom:1px solid #ddd}
+button{padding:8px 14px;border:1px solid #d7cfc3;background:#fff;border-radius:8px;cursor:pointer;font-weight:600}
+button.primary{background:#1f4b8f;color:#fff;border-color:#1f4b8f}
+select,input{padding:8px;border:1px solid #d7cfc3;border-radius:6px}
+.table-wrap{overflow:auto;padding:0 16px 0;max-height:calc(100vh - 160px)}
+table{border-collapse:collapse;width:100%;min-width:1200px;background:#fff;font-size:13px}
+th{background:#c45c26;color:#fff;padding:8px 4px;position:sticky;top:0;z-index:2}
+td{border:1px solid #eadfd2;padding:4px;text-align:center}
+td.name{text-align:left !important;font-weight:700;min-width:180px;padding-left:8px;}
+input.cell{width:60px;text-align:center;border:1px solid #ddd;border-radius:4px;padding:4px;background:#fff8e6}
+.formula{background:#e8f5e9;font-weight:700}
+#toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 18px;border-radius:8px;display:none;z-index:99}
+.stats{display:flex;gap:12px;padding:12px 16px;flex-wrap:wrap}
+.stat{background:#fff;border:1px solid #d7cfc3;border-radius:8px;padding:10px 14px;min-width:140px}
+.stat b{display:block;font-size:18px;color:#1f4b8f}
+
+@media (max-width: 700px){
+  .header{padding:12px;flex-direction:column;align-items:flex-start;gap:8px;}
+  .header h1{font-size:18px;}
+  nav{padding:8px 12px !important;gap:4px !important;}
+  button.tab{padding:6px 10px;font-size:13px;}
+  .table-wrap{padding:0 8px 16px;max-height:65vh;}
+  table{font-size:12px;min-width:700px;}
+  th,td{padding:4px 2px;}
+  input.cell{width:48px;padding:3px;}
+  .stats{padding:8px 12px;font-size:13px;}
+  #loginOverlay > div{width:90%;padding:24px;}
+}
+
+
+@media (max-width: 800px){
+  body{font-size:14px;}
+  .header{padding:8px 10px;flex-direction:column;align-items:stretch;gap:6px;}
+  .header h1{font-size:15px;margin:0;}
+  .header > div:last-child{display:flex;flex-wrap:wrap;gap:4px;}
+  nav{padding:4px 6px !important;gap:3px !important;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  button.tab{padding:5px 8px;font-size:12px;white-space:nowrap;flex-shrink:0;}
+  .table-wrap{padding:0 2px 0;max-height:calc(100vh - 140px);}
+  table{font-size:11px;min-width:600px;}
+  th,td{padding:2px 1px;}
+  input.cell{width:38px;padding:2px;font-size:11px;}
+  .stats{padding:4px 6px;font-size:11px;gap:4px;}
+  .stat{padding:4px 6px;min-width:auto;}
+  #loginOverlay > div{width:94%;padding:16px;}
+  select{font-size:13px;padding:6px;}
+  button{padding:6px 10px;font-size:13px;}
+}
+
+
+@media (max-width: 800px){
+  body{font-size:12px;}
+  #sec-ceza, #sec-devam, #sec-kurye, #sec-duzenle{padding:6px 2px !important;}
+  #sec-ceza table, #sec-devam table, #sec-kurye table, #sec-duzenle table{
+    font-size:10px; width:100%; min-width:0;
+  }
+  #sec-ceza th, #sec-ceza td,
+  #sec-devam th, #sec-devam td,
+  #sec-kurye th, #sec-kurye td,
+  #sec-duzenle th, #sec-duzenle td{
+    padding:2px 1px; white-space:nowrap;
+  }
+  #sec-duzenle{font-size:10px;}
+  #sec-duzenle table{font-size:10px;}
+  #sec-duzenle th,#sec-duzenle td{padding:1px 1px;}
+  #sec-duzenle input{width:36px !important;font-size:9px;padding:1px;}
+  #sec-duzenle input[onchange*="setPName"]{width:100px !important;font-size:10px;}
+  #sec-kurye input{width:42px !important;padding:2px;}
+}
+
+</style>
 </head>
 <body>
-<h1>Mesai Listesi</h1>
-<p>Dosya geri yükleniyor. Lütfen sayfayı yenileyin veya GitHub'dan önceki commit'i geri alın.</p>
-<p>Commit: bafd8aaf4211b4305e2c2c6dc4e4e4967355ebb7</p>
+
+<div id="loginOverlay" style="position:fixed;inset:0;background:#0b1220;display:flex;align-items:center;justify-content:center;z-index:9999;">
+  <div style="background:#fff;padding:32px;border-radius:16px;width:320px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.3);">
+    <h2 style="margin:0 0 8px;color:#1f4b8f;">Mesai Listesi</h2>
+    <p style="margin:0 0 20px;color:#666;font-size:14px;">Şifrenizi girin</p>
+    <input id="loginPass" type="password" placeholder="Şifre" onkeypress="if(event.key==='Enter')doLogin()" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:16px;margin-bottom:12px;box-sizing:border-box;">
+    <button onclick="doLogin()" style="width:100%;padding:12px;background:#1f4b8f;color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer;">Giriş</button>
+    <div id="loginError" style="color:#c45c26;margin-top:12px;font-size:13px;display:none;">Hatalı şifre</div>
+  </div>
+</div>
+
+<div class="header">
+  <div>
+    <h1>3 Şube Mesai Listesi <span style="font-size:11px;opacity:.7;">v2</span></h1>
+    
+  </div>
+  <div>
+    <select id="branch" onchange="switchBranch()">
+      <option>Cadde</option>
+      <option>Kadıköy</option>
+      <option>Çengelköy</option>
+      <option>Taksim Pide</option>
+      <option>Taksim Büfe</option>
+    </select>
+    <button class="primary" onclick="saveNow()">Kaydet</button>
+    <span id="userName" style="font-size:13px;margin-right:8px;opacity:.9;"></span>
+    <button onclick="doLogout()" style="background:#c45c26;color:#fff;border:none;">Çıkış</button>
+  </div>
+</div>
+
+<nav style="display:flex;gap:6px;padding:10px 16px;background:#fff;border-bottom:1px solid #ddd;flex-wrap:wrap;">
+  <button class="tab on" onclick="showTab('liste',this)">Liste</button>
+  <button class="tab" onclick="showTab('devam',this)">Devamsızlık</button>
+  <button class="tab" onclick="showTab('ceza',this)">Ceza</button>
+  <button class="tab" onclick="showTab('dashboard',this)">Dashboard</button>
+  <button class="tab" onclick="showTab('kurye',this)">Kurye</button>
+  <button class="tab" onclick="showTab('duzenle',this)">Düzenleme</button>
+  <button class="tab" onclick="showTab('harf',this)">Harf Birimi</button>
+  <button class="tab" onclick="showTab('yetkili',this)">Yetkili</button>
+  <button class="tab" onclick="showTab('ozet',this)">Özet</button>
+  <button onclick="arsivleSifirla()" style="background:#c45c26;color:#fff;border:none;padding:6px 10px;">Arşivle & Sıfırla</button>
+</nav>
+
+<div class="stats" id="stats"></div>
+
+<div class="controls" style="padding:8px 16px; background:#fff; border-bottom:1px solid #ddd; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+  <input id="personSearch" type="text" placeholder="Kişi ara (ad, soyad)..." oninput="filterPeople()" style="flex:1; min-width:180px; padding:8px 12px; border:1px solid #d7cfc3; border-radius:6px; font-size:14px;">
+  <button onclick="clearSearch()" style="padding:8px 12px;">Temizle</button>
+  <span id="searchCount" style="font-size:13px; color:#666;"></span>
+</div>
+<div id="sec-liste" class="table-wrap">
+<table>
+<thead>
+<tr>
+  <th>#</th><th>AD SOYAD</th>
+  <th>Mesai Saat</th><th>Mesai</th>
+  <th>HS Saat</th><th>HS</th>
+  <th>Prim Adet</th><th>Prim</th>
+  <th>Yol</th><th>İzin</th><th>Yıllık</th><th>Disiplin</th>
+  <th>TOPLAM</th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
+</div>
+<div id="sec-devam" style="display:none;padding:16px;"></div>
+<div id="sec-ceza" style="display:none;padding:16px;"></div>
+<div id="sec-dashboard" style="display:none;padding:16px;"></div>
+<div id="sec-kurye" style="display:none;padding:16px;"></div>
+<div id="sec-duzenle" style="display:none;padding:16px;"></div>
+<div id="sec-harf" style="display:none;padding:16px;"></div>
+<div id="sec-yetkili" style="display:none;padding:16px;"></div>
+<div id="sec-ozet" style="display:none;padding:16px;"></div>
+
+
+  
+</div>
+
+<div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js"></script>
+<script>
+
+const USERS = [
+  {name:"Semih Sofuoğlu", pass:"1903", branches:["Cadde","Kadıköy","Çengelköy","Taksim Pide","Taksim Büfe"], admin:true},
+  {name:"Alper Kızılkaya", pass:"1905", branches:["Cadde","Kadıköy","Çengelköy","Taksim Pide","Taksim Büfe"], admin:true},
+  {name:"Özay Alşan", pass:"367536", branches:["Kadıköy"]},
+  {name:"Sedat Kızılkaya", pass:"345334", branches:["Kadıköy"]},
+  {name:"Ahmet Özçelik", pass:"5353", branches:["Çengelköy"]},
+  {name:"Kemal Körpe", pass:"1919", branches:["Çengelköy"]},
+  {name:"İsmail", pass:"3434", branches:["Çengelköy"]},
+  {name:"Ferhat Avcı", pass:"5656", branches:["Cadde"]}
+];
+let currentUser = null;
+
+
+
+function doLogout(){
+  sessionStorage.removeItem("mesaiUser");
+  currentUser = null;
+  state = {people:[], cezalar:[], devamsizlik:[]};
+  document.getElementById("loginOverlay").style.display = "flex";
+  document.getElementById("loginPass").value = "";
+  document.getElementById("loginError").style.display = "none";
+}
+
+function doLogin(){
+  try{
+    const p = (document.getElementById("loginPass").value||"").trim();
+    const u = USERS.find(x => x.pass === p);
+    if(!u){
+      document.getElementById("loginError").style.display = "block";
+      return;
+    }
+    currentUser = u;
+    sessionStorage.setItem("mesaiUser", JSON.stringify(u));
+    const overlay = document.getElementById("loginOverlay");
+    if(overlay) overlay.style.display = "none";
+    applyUserAccess();
+    setTimeout(()=>{ try{ load();
+window.addEventListener("load", ()=>{
+  if(location.search.includes("patron=1")){
+    const overlay = document.getElementById("loginOverlay");
+    if(overlay) overlay.style.display = "none";
+    if(!currentUser){
+      currentUser = {name:"Patron", branches:["Cadde","Kadıköy","Çengelköy","Taksim Pide","Taksim Büfe"], admin:true};
+      applyUserAccess();
+    }
+  }
+}); }catch(e){ console.error(e); } }, 50);
+  }catch(err){
+    console.error("Login error:", err);
+    alert("Giriş hatası: " + err.message);
+  }
+}
+
+function applyUserAccess(){
+  if(!currentUser) return;
+  const nameEl = document.getElementById("userName");
+  if(nameEl) nameEl.textContent = currentUser.name;
+  const sel = document.getElementById("branch");
+  if(sel){
+    Array.from(sel.options).forEach(opt => {
+      const allowed = currentUser.branches.includes(opt.value);
+      opt.disabled = !allowed;
+      opt.style.display = allowed ? "" : "none";
+    });
+    // Force first allowed branch
+    const first = currentUser.branches[0];
+    if(first && sel.value !== first && !currentUser.branches.includes(sel.value)){
+      sel.value = first;
+      branch = first;
+    } else if(first){
+      branch = sel.value;
+    }
+  }
+  const dashBtn = document.querySelector('button.tab[onclick*="dashboard"], .tab[onclick*="dashboard"]');
+  const kuryeBtn = document.querySelector('button.tab[onclick*="kurye"]');
+  if(kuryeBtn) kuryeBtn.style.display = (branch==="Cadde") ? "" : "none";
+  if(dashBtn) dashBtn.style.display = currentUser.admin ? "" : "none";
+  
+}
+
+// Auto login if session exists
+(function(){
+  const params = new URLSearchParams(location.search);
+  if(params.get("patron")==="1"){
+    currentUser = {name:"Patron", pass:"", branches:["Cadde","Kadıköy","Çengelköy","Taksim Pide","Taksim Büfe"], admin:true, patron:true};
+    sessionStorage.setItem("mesaiUser", JSON.stringify(currentUser));
+    setTimeout(()=>{
+      const overlay = document.getElementById("loginOverlay");
+      if(overlay) overlay.style.display = "none";
+      applyUserAccess();
+      load();
+window.addEventListener("load", ()=>{
+  if(location.search.includes("patron=1")){
+    const overlay = document.getElementById("loginOverlay");
+    if(overlay) overlay.style.display = "none";
+    if(!currentUser){
+      currentUser = {name:"Patron", branches:["Cadde","Kadıköy","Çengelköy","Taksim Pide","Taksim Büfe"], admin:true};
+      applyUserAccess();
+    }
+  }
+});
+    }, 100);
+    return;
+  }
+  try{
+    const saved = sessionStorage.getItem("mesaiUser");
+    if(saved){
+      currentUser = JSON.parse(saved);
+      document.getElementById("loginOverlay").style.display = "none";
+      applyUserAccess();
+    }
+  }catch(e){}
+})();
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBHgiy7cM5TRYz2zuwY6CeFJwrqsVCaZjk",
+  authDomain: "cadde-mesai.firebaseapp.com",
+  databaseURL: "https://cadde-mesai-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "cadde-mesai",
+  storageBucket: "cadde-mesai.firebasestorage.app",
+  messagingSenderId: "622996188078",
+  appId: "1:622996188078:web:22962c989bedc87c02363f"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// Yetkilileri Firebase'den yükle
+db.ref("yetkililer").once("value").then(snap=>{
+  const remote = snap.val();
+  if(remote && Array.isArray(remote) && remote.length){
+    const names = new Set(USERS.map(u=>u.name));
+    remote.forEach(u=>{
+      if(u && u.name && !names.has(u.name)){
+        USERS.push(u);
+      }
+    });
+    if(document.getElementById("sec-yetkili") && document.getElementById("sec-yetkili").style.display !== "none"){
+      renderYetkili();
+    }
+  }
+}).catch(()=>{});
+
+
+const SEED = {"Cadde": [{"id": 1, "name": "CEMAL ÇELİK", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 8000, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 2, "name": "ABDULLAH AVCI", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 3, "name": "CUMHUR YİĞİT", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 4, "primAdet": 0, "yolTutar": 35000, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 4, "name": "HÜSAMETTİN KÖRPE", "kurye": false, "mesaiSaat": 4, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 5, "name": "SALİH USTA", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 6, "name": "BURHAN BAYAKIR", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 7, "name": "ERDAL ÇAVDAR", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 66, "name": "OKTAY ÇELİK", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 8, "name": "HİKMET ERDOĞDU", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 9, "name": "SELİM ORTAHİSAR", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 10, "name": "MEHMET EMİN MÜDERRİSOĞLU", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 11, "name": "KÖKSAL SOYKAN", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 12, "name": "FERHAT AVCI", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 13, "name": "ERHAN SOFUOĞLU", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 14, "name": "HASAN ALİ GERZ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 15, "name": "MUHAMMET CAN SARICA", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 3, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 16, "name": "BİLAL SÜRİKLİ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 17, "name": "HASAN KOÇALAN", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 18, "name": "UĞUR GÖKER", "kurye": true, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 19, "name": "BEDRETTİN AVCI", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 4, "primAdet": 0, "yolTutar": 11000, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 20, "name": "EMRE POLAT", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 21, "name": "SELAHATTİN AVCI", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 22, "name": "CANER AVCI", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 23, "name": "ALİ AKKOCA", "kurye": true, "mesaiSaat": 1.5, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 24, "name": "AZAD MYRADOV", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 25, "name": "MURAT TORUN", "kurye": true, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 26, "name": "MEHMET ÇELİK", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 27, "name": "YILMAZ AVCI", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 4, "primAdet": 0, "yolTutar": 35000, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 28, "name": "RAMAZAN BAYAKIR", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 29, "name": "ONUR AVCI", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 30, "name": "MUHAMMET MUSTAFA BAYAKIR", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 31, "name": "CİHAN AVCI", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 1, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 32, "name": "FURKAN KAVAK", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 2350, "disiplinDk": 0, "izinBirim": 2700}, {"id": 33, "name": "SEPİDEH MENATTİ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 34, "name": "MUHAMMET EREN ÇELİK", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 35, "name": "MURAT DAĞIDIR", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 4, "primAdet": 0, "yolTutar": 30800, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 36, "name": "SEYFİ ÇELİK", "kurye": true, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 37, "name": "FEVZİ DOLAK", "kurye": true, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 39, "name": "AYDIN AVCI", "kurye": false, "mesaiSaat": 6, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 34100, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 40, "name": "HAKAN ATMACA", "kurye": true, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 3, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 42, "name": "ABDULLAH DENERİ", "kurye": false, "mesaiSaat": 8, "mesaiBirim": 220, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 43, "name": "HAMİT AKPINAR", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 44, "name": "ADİL EMİR ÇELİK", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 3, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 45, "name": "ABDURRAHMAN KAPAN", "kurye": true, "mesaiSaat": 1, "mesaiBirim": 270, "hsSaat": 3, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 46, "name": "SAYİM GÜMÜŞ", "kurye": true, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 1, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 49, "name": "YUNUS EMRE ÇELİK", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 50, "name": "RAMAZAN YAVUZ", "kurye": true, "mesaiSaat": 1, "mesaiBirim": 270, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 21850, "disiplinDk": 0, "izinBirim": 2400}, {"id": 51, "name": "ZEYNEP SOFUOĞLU", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 52, "name": "MUSTAFA AYDIN", "kurye": true, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 53, "name": "HASAN İPEK", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 54, "name": "KAAN ATASOY", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 55, "name": "ABDULLAH GÜRKAN", "kurye": false, "mesaiSaat": 2, "mesaiBirim": 320, "hsSaat": 3, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 56, "name": "VADETTİN AVCI", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 57, "name": "ERCAN ALTUN", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 58, "name": "OSMAN CEYLAN", "kurye": true, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 1, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 59, "name": "SEMİH SOFUOĞLU", "kurye": false, "mesaiSaat": 1, "mesaiBirim": 320, "hsSaat": 4, "primAdet": 0, "yolTutar": 32500, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 60, "name": "ABDURRAHMAN ÖZKAN", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 61, "name": "FIRAT AVCI", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 62, "name": "MENDERES SOFUOĞLU", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 63, "name": "HİCABİ AKYILDIZ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 64, "name": "ABDURRAHMAN BULUT", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 47, "name": "MUHİTTİN ÖZÇELİK", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 38, "name": "MUHAMMET SOFUOĞLU", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 1, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 65, "name": "MUHAMMED MÜMİN ILGAR", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 67, "name": "MÜSLÜM KANIKARA", "kurye": true, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 48, "name": "BAYRAM YETER", "kurye": true, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 0.5, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}], "Kadıköy": [{"id": 201, "name": "ÖZAY ALŞAN", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 202, "name": "ABDULKADİR AKYÜZ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 203, "name": "MUHAMMED AKYÜZ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 204, "name": "SEDAT KIZILKAYA", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 205, "name": "MAHMUT TEKER", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 206, "name": "İSRAFİL ÖZTÜRK", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 207, "name": "CAFER KOCA", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 208, "name": "İSA AKYILDIZ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 209, "name": "MUHSİN IŞIK", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 210, "name": "RAMAZAN KURAL", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 211, "name": "RAMAZAN UZUNALP", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 212, "name": "GÜRKAN EYÜPOĞLU", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 213, "name": "VEDAT ÖZTÜRK", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 214, "name": "BİLAL DENERİ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 215, "name": "VEPA", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 216, "name": "GÖKHAN YEŞİLBAŞ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 217, "name": "EREN YILMAZ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 218, "name": "İSMAİL ALBAYRAK", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 219, "name": "MURAT KAYA", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 220, "name": "MUHSİN ÖZMERT", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 221, "name": "EMİRHAN KANDEMİR", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 222, "name": "AZAT ASLANGRİ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 223, "name": "RIZVAN FINDIK", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 224, "name": "K. ENDER KIZILKAYA", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 225, "name": "ERAY SOFUOĞLU", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 226, "name": "FURKAN ARDA", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 227, "name": "FERAT GÜNDÜZ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 228, "name": "İBRAHİM KARAMAN", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 229, "name": "YİĞİT ASLANGRİ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 230, "name": "TUNCAY ÇAĞLAYAN", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 231, "name": "ABDULSAMET SEYAR", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 232, "name": "BATUHAN SEYAR", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 233, "name": "ALİ BİNGÖL", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 234, "name": "ALTAN BULUT", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 235, "name": "YASİN TERCANL", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 236, "name": "İSMAİL YAZICI", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 237, "name": "EMİR ÇAPAR", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 238, "name": "OĞUZHAN ÇAVUSOĞLU", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 239, "name": "TAHSIN CERAN", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 240, "name": "MUHAMMED ONUR SAMUR", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 241, "name": "İSMAİL BURAK AKYOL", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}], "Çengelköy": [{"id": 101, "name": "EMRE BULUT", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 250, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2500}, {"id": 102, "name": "MURAT GÜNEY", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 250, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2500}, {"id": 103, "name": "AHMET ÖZÇELİK", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 280, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2800}, {"id": 104, "name": "TOLGA BULUT", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 250, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2500}, {"id": 105, "name": "GÜLEN OTAÇ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 190, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 106, "name": "VEYSEL YILMAZ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 230, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2300}, {"id": 107, "name": "MUSTAFA YILDIRIM", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 230, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2300}, {"id": 108, "name": "BEYTULLAH ÖMER YAĞMUR", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 230, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2300}, {"id": 109, "name": "ŞEYMA KARA", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 230, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2300}, {"id": 110, "name": "KEMAL KÖRPE", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 280, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2800}, {"id": 111, "name": "BİLAL KAHVECİ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 230, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2300}, {"id": 112, "name": "ALİ ÖMER YILMAZ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 230, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2300}, {"id": 113, "name": "FATİH İPEK", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 250, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2500}, {"id": 114, "name": "İSMAİL ŞİMŞEK", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 280, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2800}, {"id": 115, "name": "TAHİR ŞAHBAZ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 230, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2300}, {"id": 116, "name": "SEMİH DÜNDAR", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 230, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2300}, {"id": 117, "name": "ABDULSAMET YAPRAK", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 190, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 118, "name": "METİN BULUT", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 190, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 119, "name": "OSMAN KAPLAN", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 280, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 4000, "disiplinDk": 0, "izinBirim": 2800}, {"id": 120, "name": "RAMAZAN KOÇAL", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 250, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2500}, {"id": 121, "name": "YAŞAR KEMAL HAN", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 250, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2800}, {"id": 122, "name": "UĞUR YILMAZ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 230, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 123, "name": "NECMETTİN AKYILDIZ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 230, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 124, "name": "AZİM RECEBİ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 125, "name": "AZİMYAR SHAHABUDDİN", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}]};
+
+const PRIM_BIRIM = 7;
+
+const TEMPLATES = {
+  Cadde: {
+    A: {mesaiBirim:320, izinBirim:2900, hsBirim:2500},
+    B: {mesaiBirim:300, izinBirim:2700, hsBirim:2500},
+    C: {mesaiBirim:270, izinBirim:2400, hsBirim:2500},
+    D: {mesaiBirim:220, izinBirim:1900, hsBirim:2500}
+  },
+  Kadıköy: {
+    A: {mesaiBirim:320, izinBirim:2900, hsBirim:2500},
+    B: {mesaiBirim:300, izinBirim:2700, hsBirim:2500},
+    C: {mesaiBirim:270, izinBirim:2400, hsBirim:2500},
+    D: {mesaiBirim:220, izinBirim:1900, hsBirim:2500}
+  },
+  "Çengelköy": {
+    A: {mesaiBirim:280, izinBirim:2800, hsBirim:2000},
+    B: {mesaiBirim:250, izinBirim:2500, hsBirim:2000},
+    C: {mesaiBirim:230, izinBirim:2300, hsBirim:2000},
+    D: {mesaiBirim:190, izinBirim:1900, hsBirim:2000}
+  }
+};
+
+let branch = "Cadde";
+let state = { people: [], cezalar: [], devamsizlik: [] };
+
+
+function showTab(name, btn){
+  document.querySelectorAll('[id^="sec-"]').forEach(el=>el.style.display="none");
+  document.getElementById("sec-"+name).style.display = name==="liste" ? "block" : "block";
+  if(name==="liste") document.getElementById("sec-liste").style.display="block";
+  document.querySelectorAll(".tab").forEach(b=>b.classList.remove("on"));
+  if(btn) btn.classList.add("on");
+  if(name==="devam") renderDevam();
+  if(name==="ceza") renderCeza();
+  if(name==="ozet") renderOzet();
+  if(name==="duzenle") renderDuzenle();
+  if(name==="kurye") renderKurye();
+  if(name==="yetkili") renderYetkili();
+  if(name==="harf") renderHarf();
+  if(name==="dashboard") renderDashboard();
+}
+
+function toast(m){
+  const t=document.getElementById("toast");
+  if(!t) return;
+  t.textContent=m; t.style.display="block";
+  setTimeout(()=>t.style.display="none",1800);
+}
+function tl(n){ return Math.round(n||0).toLocaleString("tr-TR"); }
+function dash(n){ return (Math.round(n)||0)===0 ? "-" : tl(n); }
+
+function calc(p){
+  const mesai = (p.mesaiSaat||0) * (p.mesaiBirim||300);
+  const hs = (p.hsSaat||0) * 2500;
+  const prim = (branch==="Cadde" && p.kurye) ? (p.primAdet||0)*PRIM_BIRIM : 0;
+  const yol = p.yolTutar||0;
+  const izin = (p.izinGun||0) * (p.izinBirim||0);
+  const yillik = p.yillikTutar||0;
+  const dis = (p.disiplinDk||0);
+  return {mesai, hs, prim, yol, izin, yillik, dis, toplam: mesai+hs+prim+yol+izin+yillik+dis};
+}
+
+
+let searchQuery = "";
+
+function filterPeople(){
+  searchQuery = (document.getElementById("personSearch")?.value || "").toLocaleLowerCase("tr-TR").trim();
+  render();
+}
+
+function clearSearch(){
+  const inp = document.getElementById("personSearch");
+  if(inp) inp.value = "";
+  searchQuery = "";
+  render();
+}
+
+function matchesSearch(name){
+  if(!searchQuery) return true;
+  const n = (name||"").toLocaleLowerCase("tr-TR");
+  return n.includes(searchQuery) || n.split(" ").some(part => part.startsWith(searchQuery));
+}
+
+function render(){
+  const isMobile = window.innerWidth < 700 && /Mobi|Android|iPhone/i.test(navigator.userAgent);
+  const wrap = document.getElementById("sec-liste");
+  let sTop = 0;
+
+  if(isMobile){
+    wrap.innerHTML = "";
+    let filteredM = (state.people||[]).filter(p => matchesSearch(p.name));
+    filteredM.forEach((p,i)=>{
+      const origIdx = (state.people||[]).indexOf(p);
+      const c = calc(p); sTop += c.toplam;
+      const card = document.createElement("div");
+      card.style.cssText = "background:#fff;border-radius:10px;padding:8px 10px;margin:4px 6px;box-shadow:0 1px 2px rgba(0,0,0,.05);border-left:3px solid #0f7b4c;";
+      const color = c.toplam > 0 ? "#0f7b4c" : "#c45c26";
+      card.innerHTML = `
+        <div onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'" style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:2px 0;">
+          <div style="width:28px;height:28px;border-radius:50%;background:${color};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0;">${i+1}</div>
+          <div style="flex:1;font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.name||""}</div>
+          <div style="font-weight:800;color:${color};font-size:14px;flex-shrink:0;">${dash(c.toplam)}</div>
+        </div>
+        <div style="display:none;margin-top:8px;padding:8px 0 4px;border-top:1px solid #eee;font-size:11px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+            <div><div style="color:#666;margin-bottom:2px;">Mesai</div><input class="cell" type="number" step="0.5" value="${p.mesaiSaat||0}" onchange="setP(${origIdx},'mesaiSaat',this.value)" style="width:100%;"></div>
+            <div><div style="color:#666;margin-bottom:2px;">HS</div><input class="cell" type="number" step="0.5" value="${p.hsSaat||0}" onchange="setP(${origIdx},'hsSaat',this.value)" style="width:100%;"></div>
+            <div><div style="color:#666;margin-bottom:2px;">Yol</div><input class="cell" type="number" value="${p.yolTutar||0}" onchange="setP(${origIdx},'yolTutar',this.value)" style="width:100%;"></div>
+            <div><div style="color:#666;margin-bottom:2px;">İzin gün</div><input class="cell" type="number" value="${p.izinGun||0}" onchange="setP(${origIdx},'izinGun',this.value)" style="width:100%;"></div>
+            <div><div style="color:#666;margin-bottom:2px;">İzin TL</div><input class="cell" type="number" value="${p.izinTutar||0}" onchange="setP(${origIdx},'izinTutar',this.value)" style="width:100%;"></div>
+            <div><div style="color:#666;margin-bottom:2px;">Yıllık</div><input class="cell" type="number" value="${p.yillikTutar||0}" onchange="setP(${origIdx},'yillikTutar',this.value)" style="width:100%;"></div>
+          </div>
+        </div>`;
+      wrap.appendChild(card);
+    });
+  } else {
+    const tb = document.getElementById("tbody");
+    if(!tb) return;
+    tb.innerHTML = "";
+    let filtered = (state.people||[]).filter(p => matchesSearch(p.name));
+    const countEl = document.getElementById("searchCount");
+    if(countEl) countEl.textContent = searchQuery ? `${filtered.length} kişi bulundu` : "";
+    filtered.forEach((p,i)=>{
+      const origIdx = (state.people||[]).indexOf(p);
+      const c = calc(p); sTop += c.toplam;
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${i+1}</td><td class="name">${p.name||""}</td><td><input class="cell" type="number" step="0.5" value="${p.mesaiSaat||0}" onchange="setP(${origIdx},'mesaiSaat',this.value)"></td><td>${dash(c.mesai)}</td><td><input class="cell" type="number" step="0.5" value="${p.hsSaat||0}" onchange="setP(${origIdx},'hsSaat',this.value)"></td><td>${dash(c.hs)}</td><td>${(branch==="Cadde"&&p.kurye)?`<input class="cell" style="width:46px" type="number" value="${p.primAdet||0}" onchange="setP(${origIdx},'primAdet',this.value)">`:'-'}</td><td>${dash(c.prim)}</td><td><input class="cell" type="number" value="${p.yolTutar||0}" onchange="setP(${origIdx},'yolTutar',this.value)"></td><td><input class="cell" type="number" value="${p.izinGun||0}" onchange="setP(${origIdx},'izinGun',this.value)"></td><td>${dash(c.yillik)}</td><td>${dash((p.disiplinDk||0))}</td><td class="formula">${dash(c.toplam)}</td>`;
+      tb.appendChild(tr);
+    });
+  }
+  const stats = document.getElementById("stats");
+  if(stats) stats.innerHTML = `<div class="stat"><b>${(state.people||[]).length}</b> kişi</div><div class="stat"><b>${tl(sTop)} TL</b></div>`;
+}
+
+function setP(i,k,v){
+  if(!state.people[i]) return;
+  state.people[i][k] = +v || 0;
+  render();
+}
+
+function saveNow(){
+  db.ref("mesai/"+branch).set(state).then(()=>toast("Kaydedildi – herkes görür")).catch(e=>toast("Hata: "+e.message));
+}
+
+function arsivleSifirla(){
+  if(!confirm(branch + " şubesini arşivleyip sıfırlamak istediğine emin misin?\nKişiler ve birimler kalır, sadece bu ayın verileri sıfırlanır.")) return;
+  const now = new Date();
+  const ay = now.getFullYear() + "-" + String(now.getMonth()+1).padStart(2,"0");
+  // Arşivle
+  db.ref("arsiv/"+branch+"/"+ay).set(state).then(()=>{
+    // Sıfırla
+    if(state.people){
+      state.people.forEach(p=>{
+        p.mesaiSaat = 0;
+        p.hsSaat = 0;
+        p.primAdet = 0;
+        p.yolTutar = 0;
+        p.izinGun = 0;
+        p.izinTutar = 0;
+        p.yillikTutar = 0;
+        p.disiplinDk = 0;
+      });
+    }
+    state.cezalar = [];
+    state.devamsizlik = [];
+    db.ref("mesai/"+branch).set(state).then(()=>{
+      toast(ay + " arşivlendi, veriler sıfırlandı");
+      render();
+    });
+  }).catch(e=>toast("Hata: "+e.message));
+}
+
+function switchBranch(){
+  branch = document.getElementById("branch").value;
+  load();
+window.addEventListener("load", ()=>{
+  if(location.search.includes("patron=1")){
+    const overlay = document.getElementById("loginOverlay");
+    if(overlay) overlay.style.display = "none";
+    if(!currentUser){
+      currentUser = {name:"Patron", branches:["Cadde","Kadıköy","Çengelköy","Taksim Pide","Taksim Büfe"], admin:true};
+      applyUserAccess();
+    }
+  }
+});
+}
+
+
+async function renderDashboard(){
+  const el = document.getElementById("sec-dashboard");
+  if(!el) return;
+  el.innerHTML = "<div style='padding:16px;'>Yükleniyor...</div>";
+
+  const branches = ["Cadde","Kadıköy","Çengelköy","Taksim Pide","Taksim Büfe"];
+  const colors = {Cadde:"#c45c26", Kadıköy:"#1f4b8f", "Çengelköy":"#0f7b4c", "Taksim Pide":"#7c3aed", "Taksim Büfe":"#0ea5e9"};
+  const icons = {Cadde:"🏪", Kadıköy:"📍", "Çengelköy":"🌿", "Taksim Pide":"🥙", "Taksim Büfe":"🥪"};
+  const data = {};
+  let all = {toplam:0, mesai:0, hs:0, izin:0, yol:0, ceza:0, kisi:0};
+
+  for(const b of branches){
+    try{
+      const snap = await db.ref("mesai/"+b).once("value");
+      const d = snap.val() || {};
+      let kisi=0, toplam=0, mesai=0, hs=0, izin=0, yol=0;
+      (d.people||[]).forEach(p=>{
+        const c = calc(p);
+        kisi++;
+        toplam += c.toplam;
+        mesai += c.mesai;
+        hs += c.hs;
+        izin += (c.izin||0)+(c.yillik||0);
+        yol += c.yol;
+      });
+      const ceza = (d.cezalar||[]).reduce((a,c)=>a+(c.tutar||0),0);
+      data[b] = {kisi, toplam, mesai, hs, izin, yol, ceza};
+      all.toplam += toplam; all.mesai += mesai; all.hs += hs; all.izin += izin; all.yol += yol; all.ceza += ceza; all.kisi += kisi;
+    }catch(e){
+      data[b] = {kisi:0, toplam:0, mesai:0, izin:0, yol:0, ceza:0};
+    }
+  }
+
+  let prevAll = {toplam:0, mesai:0, hs:0, izin:0, ceza:0};
+  try{
+    const prev = JSON.parse(localStorage.getItem("mesai_prev_snapshot")||"null");
+    if(prev && prev.all) prevAll = prev.all;
+  }catch(e){}
+
+  function pct(cur, prev){
+    if(!prev || prev===0) return "-";
+    const d = ((cur-prev)/prev*100);
+    const col = d>=0 ? "#0f7b4c" : "#c45c26";
+    const sign = d>=0 ? "↑" : "↓";
+    return `<span style="color:${col};font-weight:700;font-size:12px;">${sign} ${Math.abs(d).toFixed(1)}%</span>`;
+  }
+
+  let cards = "";
+  branches.forEach(b=>{
+    const t = data[b];
+    const avg = t.kisi ? Math.round(t.toplam/t.kisi) : 0;
+    cards += `
+      <div style="background:#fff;border-radius:14px;padding:16px;border-top:5px solid ${colors[b]};box-shadow:0 1px 4px rgba(0,0,0,.06);">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <span style="font-size:20px;">${icons[b]}</span><b>${b}</b>
+        </div>
+        <div style="font-size:12px;color:#666;">Toplam Ödenecek</div>
+        <div style="font-size:24px;font-weight:800;color:${colors[b]};">${tl(t.toplam)} TL</div>
+        <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:13px;"><span>👤 Kişi</span><b>${t.kisi}</b></div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:13px;"><span>📊 Ortalama</span><b>${tl(avg)} TL</b></div>
+      </div>`;
+  });
+
+  function cmpRow(label, icon, cur, prevv){
+    return `<div style="display:grid;grid-template-columns:1fr 1fr 80px;gap:8px;align-items:center;padding:8px 4px;border-bottom:1px solid #f0ebe3;font-size:13px;">
+      <div style="display:flex;align-items:center;gap:6px;"><span>${icon}</span><span>${label}</span><b style="margin-left:auto;">${tl(cur)} TL</b></div>
+      <div style="text-align:right;color:#555;">${prevv?tl(prevv)+" TL":"-"}</div>
+      <div style="text-align:right;">${pct(cur, prevv)}</div>
+    </div>`;
+  }
+
+  const max = Math.max(...branches.map(b=>data[b].toplam), 1);
+  let bars = "";
+  branches.forEach(b=>{
+    const t = data[b];
+    const w = Math.max(8, Math.round(t.toplam/max*100));
+    bars += `
+      <div style="margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${colors[b]};margin-right:6px;"></span>${b}</span>
+          <b>${tl(t.toplam)} TL</b>
+        </div>
+        <div style="background:#eee;border-radius:8px;height:20px;overflow:hidden;"><div style="background:${colors[b]};width:${w}%;height:100%;"></div></div>
+      </div>`;
+  });
+
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:16px;">${cards}</div>
+    <div style="background:#fff;border-radius:14px;padding:16px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.06);">
+      <div style="font-weight:700;margin-bottom:10px;">Ay Karşılaştırması</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 80px;gap:8px;font-size:12px;color:#666;margin-bottom:6px;">
+        <div>Bu Ay</div><div>Geçen Ay</div><div></div>
+      </div>
+      ${cmpRow("Toplam","💰",all.toplam,prevAll.toplam)}
+      ${cmpRow("Mesai","⏱️",all.mesai,prevAll.mesai)}
+      ${cmpRow("HS (Hafta Sonu)","📅",all.hs,prevAll.hs||0)}
+      ${cmpRow("İzin","🏠",all.izin,prevAll.izin)}
+      ${cmpRow("Yol","🚌",all.yol,prevAll.yol)}
+      ${cmpRow("Ceza","⚠️",all.ceza,prevAll.ceza)}
+      <div style="text-align:right;margin-top:10px;"><button onclick="savePrevSnapshot()" style="font-size:12px;padding:6px 10px;">Bu ayı geçen ay olarak kaydet</button></div>
+    </div>
+    <div style="background:#fff;border-radius:14px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.06);">
+      <div style="font-weight:700;margin-bottom:10px;">Şube Bazında Toplam</div>
+      ${bars}
+    </div>`;
+}
+
+function savePrevSnapshot(){
+  // Will be filled by current all totals on next render
+  toast("Geçen ay kaydı için Dashboard'u yenile");
+}
+
+function savePrevSnapshot(){
+  const all = {toplam:0, mesai:0, hs:0, izin:0, ceza:0};
+  if(state.people){
+    state.people.forEach(p=>{
+      const c = calc(p);
+      all.toplam += c.toplam;
+      all.mesai += c.mesai;
+      all.hs += c.hs;
+      all.izin += (c.izin||0)+(c.yillik||0);
+    });
+  }
+  if(state.cezalar) all.ceza = state.cezalar.reduce((a,c)=>a+(c.tutar||0),0);
+  localStorage.setItem("mesai_prev_snapshot", JSON.stringify({all, saved: new Date().toISOString()}));
+  toast("Geçen ay kaydedildi");
+  renderDashboard();
+}
+
+
+
+
+
+function renderHarf(){
+  const el = document.getElementById("sec-harf");
+  if(!el) return;
+  const t = TEMPLATES[branch] || {};
+  let rows = "";
+  ["A","B","C","D"].forEach(letter=>{
+    const v = t[letter] || {mesaiBirim:0, izinBirim:0, hsBirim:0};
+    rows += `<tr>
+      <td><b>${letter}</b></td>
+      <td><input type="number" value="${v.mesaiBirim||0}" onchange="setTemplate('${letter}','mesaiBirim',this.value)" style="width:70px;"></td>
+      <td><input type="number" value="${v.izinBirim||0}" onchange="setTemplate('${letter}','izinBirim',this.value)" style="width:70px;"></td>
+      <td><input type="number" value="${v.hsBirim||0}" onchange="setTemplate('${letter}','hsBirim',this.value)" style="width:70px;"></td>
+    </tr>`;
+  });
+  el.innerHTML = `
+    <h3>${branch} Harf Birimleri</h3>
+    <table style="max-width:400px;width:100%;">
+      <thead><tr style="background:#1f4b8f;color:#fff;"><th>Harf</th><th>Saatlik</th><th>İzin</th><th>HS</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <p style="font-size:12px;color:#666;margin-top:8px;">Değişiklik anında kaydedilir. Yıl başında buradan güncelle.</p>`;
+}
+function setTemplate(letter, key, val){
+  if(!TEMPLATES[branch]) TEMPLATES[branch] = {};
+  if(!TEMPLATES[branch][letter]) TEMPLATES[branch][letter] = {};
+  TEMPLATES[branch][letter][key] = +val||0;
+  db.ref("templates/"+branch+"/"+letter).set(TEMPLATES[branch][letter]);
+  toast(letter + " güncellendi");
+}
+
+function renderYetkili(){
+  const el = document.getElementById("sec-yetkili");
+  if(!el || !currentUser || !currentUser.admin) { if(el) el.innerHTML="<p>Yetkin yok</p>"; return; }
+  let rows = USERS.map((u,i)=>`<tr><td>${u.name}</td><td>${u.pass}</td><td>${u.branches.join(", ")}</td><td>${u.admin?"Admin":"-"}</td></tr>`).join("");
+  el.innerHTML = `
+    <h3>Yetkililer</h3>
+    <table style="width:100%;max-width:600px;"><thead><tr style="background:#1f4b8f;color:#fff;"><th>Ad</th><th>Şifre</th><th>Şubeler</th><th></th></tr></thead><tbody>${rows}</tbody></table>
+    <div style="margin-top:12px;">
+      <input id="yeniYetkiliAd" placeholder="Ad" style="padding:6px;width:120px;">
+      <input id="yeniYetkiliPass" placeholder="Şifre" style="padding:6px;width:80px;">
+      <select id="yeniYetkiliSube" style="padding:6px;"><option>Cadde</option><option>Kadıköy</option><option>Çengelköy</option><option>Taksim Pide</option><option>Taksim Büfe</option></select>
+      <button onclick="ekleYetkili()" style="background:#1f4b8f;color:#fff;border:none;padding:6px 10px;">Ekle</button>
+    </div>`;
+}
+function ekleYetkili(){
+  const ad = document.getElementById("yeniYetkiliAd").value.trim();
+  const pass = document.getElementById("yeniYetkiliPass").value.trim();
+  const sube = document.getElementById("yeniYetkiliSube").value;
+  if(!ad || !pass) return;
+  const yeni = {name:ad, pass, branches:[sube], admin:false};
+  USERS.push(yeni);
+  // Firebase'e kaydet
+  db.ref("yetkililer").set(USERS).then(()=>{
+    toast(ad + " eklendi ve kaydedildi");
+    renderYetkili();
+  }).catch(e=>toast("Kaydetme hatası: "+e.message));
+}
+function renderKurye(){
+  const el = document.getElementById("sec-kurye");
+  if(!el) return;
+  if(branch !== "Cadde"){
+    el.innerHTML = "<p style='padding:16px;color:#666;'>Kurye primi sadece Cadde şubesinde.</p>";
+    return;
+  }
+  const list = (state.people||[]).filter(p=>p.kurye);
+  let rows = "";
+  let sumAdet = 0, sumTutar = 0;
+  list.forEach((p,i)=>{
+    const adet = p.primAdet||0;
+    const tutar = adet * 7;
+    sumAdet += adet; sumTutar += tutar;
+    rows += `<tr>
+      <td>${i+1}</td>
+      <td style="text-align:left;padding-left:8px;">${p.name}</td>
+      <td><input type="number" value="${adet}" onchange="setPrim(${p.id},this.value)" style="width:70px;"></td>
+      <td>${tutar.toLocaleString("tr-TR")} TL</td>
+    </tr>`;
+  });
+  el.innerHTML = `
+    <table style="width:100%;max-width:500px;">
+      <thead><tr style="background:#1f4b8f;color:#fff;"><th>#</th><th>Ad Soyad</th><th>Prim Adet</th><th>Prim Tutar</th></tr></thead>
+      <tbody>${rows||"<tr><td colspan=4>Kurye yok</td></tr>"}</tbody>
+      <tfoot><tr style="background:#222;color:#fff;"><td></td><td>TOPLAM</td><td>${sumAdet}</td><td>${sumTutar.toLocaleString("tr-TR")} TL</td></tr></tfoot>
+    </table>`;
+}
+function setPrim(id,v){
+  const p = state.people.find(x=>x.id===id);
+  if(p){ p.primAdet = +v||0; saveNow(); renderKurye(); }
+}
+
+function renderDuzenle(){
+  const el = document.getElementById("sec-duzenle");
+  if(!el) return;
+  const isCadde = branch === "Cadde";
+  const izinMap = {};
+  (SEED[branch]||[]).forEach(p=>{ if(p.name) izinMap[p.name] = p.izinBirim||0; });
+  let rows = "";
+  (state.people||[]).forEach((p,i)=>{
+    rows += `<tr>
+      <td>${i+1}</td>
+      <td><input value="${p.name||""}" onchange="setPName(${i},this.value)" style="width:140px;font-size:11px;padding:2px 4px;"></td>
+      <td>
+        <select onchange="applyTemplate(${i},this.value)" style="width:46px;font-size:11px;">
+          <option value="">-</option>
+          <option value="A" ${p.template==="A"?"selected":""}>A</option>
+          <option value="B" ${p.template==="B"?"selected":""}>B</option>
+          <option value="C" ${p.template==="C"?"selected":""}>C</option>
+          <option value="D" ${p.template==="D"?"selected":""}>D</option>
+        </select>
+      </td>
+      <td><input type="number" value="${p.mesaiBirim||300}" onchange="setP(${i},'mesaiBirim',this.value)" style="width:70px;"></td>
+      <td><input type="number" value="${p.hsBirim||(branch==='Çengelköy'?1000:2500)}" onchange="setP(${i},'hsBirim',this.value)" style="width:70px;background:#fff8e6;"></td>
+      <td><input type="number" value="${p.izinBirim||izinMap[p.name]||0}" onchange="setP(${i},'izinBirim',this.value)" style="width:70px;background:#fff8e6;"></td>
+      ${isCadde?`<td><input type="checkbox" ${p.kurye?"checked":""} onchange="setKurye(${i},this.checked)"></td>`:""}
+      <td><button onclick="silKisi(${i})" style="background:#c45c26;color:#fff;border:none;padding:4px 8px;">Sil</button></td>
+    </tr>`;
+  });
+  el.innerHTML = `
+    <div style="margin-bottom:12px;">
+      <input id="yeniAd" placeholder="Yeni isim" style="padding:6px;width:140px;">
+      <input id="yeniBirim" type="number" placeholder="Saatlik" value="300" style="padding:6px;width:70px;">
+      <button onclick="ekleKisi()" style="background:#1f4b8f;color:#fff;border:none;padding:6px 10px;">Ekle</button>
+      <input type="file" id="importFile" accept=".xlsx,.xls,.csv,.pdf" style="display:none;" onchange="importPeople(this)">
+      <button onclick="document.getElementById('importFile').click()" style="background:#0f7b4c;color:#fff;border:none;padding:6px 12px;font-weight:600;">📄 Excel/PDF Yükle</button>
+      <button onclick="applyKnownLetters()" style="background:#7c3aed;color:#fff;border:none;padding:6px 10px;">Harfleri Uygula</button>
+    </div>
+    <table style="width:100%;max-width:700px;">
+      <thead><tr style="background:#1f4b8f;color:#fff;">
+        <th>#</th><th>Ad Soyad</th><th>Harf</th><th>Saatlik</th><th>HS Birim</th><th>İzin Birim</th>${isCadde?"<th>Kurye</th>":""}<th></th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+const LETTER_MAP = {
+  Cadde: {"CEMAL ÇELİK":"A","ABDULLAH AVCI":"B","CUMHUR YİĞİT":"A","HÜSAMETTİN KÖRPE":"A","SALİH USTA":"A","BURHAN BAYAKIR":"B","ERDAL ÇAVDAR":"A","OKTAY ÇELİK":"A","HİKMET ERDOĞDU":"B","FIRAT AVCI":"A","SELİM ORTAHİSAR":"A","MEHMET EMİN MÜDERRİSOĞLU":"B","KÖKSAL SOYKAN":"B","FERHAT AVCI":"A","SEMİH SOFUOĞLU":"A","ERHAN SOFUOĞLU":"B","MUHİTTİN ÖZÇELİK":"C","HARUN BAYAKIR":"B","HASAN ALİ GERZ":"A","MUHAMMET CAN SARICA":"B","BİLAL SÜRİKLİ":"D","HASAN KOÇALAN":"B","UĞUR GÖKER":"C","MENDERES SOFUOĞLU":"A","BEDRETTİN AVCI":"B","EMRE POLAT":"A","SELAHATTİN AVCI":"A","CANER AVCI":"A","ALİ AKKOCA":"A","AZAD MYRADOV":"B","MURAT TORUN":"C","MEHMET ÇELİK":"B","YILMAZ AVCI":"A","RAMAZAN BAYAKIR":"C","MUHAMMET BAYAKIR":"C","ONUR AVCI":"B","MUHAMMET MUSTAFA BAYAKIR":"B","CİHAN AVCI":"C","ABDURRAHMAN ÖZKAN":"C","FURKAN KAVAK":"B","SEPİDEH MENATTİ":"B","MUHAMMET EREN ÇELİK":"B","MURAT DAĞIDIR":"B","MUHAMMET SOFUOĞLU":"A","SEYFİ ÇELİK":"C","FEVZİ DOLAK":"C","ABDULKADİR UĞURLUEL":"B","AYDIN AVCI":"A","HAKAN ATMACA":"C","CİHAN GENÇ":"C","ABDULLAH DENERİ":"D","HAMİT AKPINAR":"D","ADİL EMİR ÇELİK":"B","ABDURRAHMAN KAPAN":"C","SAYİM GÜMÜŞ":"C","ARDA AYDOĞAN":"C","BAYRAM YETER":"C","ELİF KARADAĞ":"C","YUNUS EMRE ÇELİK":"B","RAMAZAN YAVUZ":"C","ZEYNEP SOFUOĞLU":"C","MUSTAFA AYDIN":"C","HASAN İPEK":"A","HİCABİ AKYILDIZI":"B","KAAN ATASOY":"D","ABDURRAHMAN BULUT":"D","ABDULLAH GÜRKAN":"A","VADETTİN AVCI":"C","ERCAN ALTUN":"C","OSMAN CEYLAN":"C"},
+  Kadıköy: {"ÖZAY ALŞAN":"A","ABDULKADİR AKYÜZ":"A","MUHAMMED AKYÜZ":"B","SEDAT KIZILKAYA":"A","MAHMUT TEKER":"C","İSRAFİL ÖZTÜRK":"A","CAFER KOCA":"C","İSA AKYILDIZ":"A","MUHSİN IŞIK":"C","RAMAZAN KURAL":"A","RAMAZAN UZUNALP":"D","GÜRKAN EYÜPOĞLU":"C","VEDAT ÖZTÜRK":"A","BİLAL DENERİ":"D","VEPA":"D","GÖKHAN YEŞİLBAŞ":"C","EREN YILMAZ":"D","İSMAİL ALBAYRAK":"D","MURAT KAYA":"D","MUHSİN ÖZMERT":"A","EMİRHAN KANDEMİR":"B","AZAT ASLANGRİ":"D","RIZVAN FINDIK":"B","K. ENDER KIZILKAYA":"D","ERAY SOFUOĞLU":"B","FURKAN ARDA":"C","FERAT GÜNDÜZ":"A","İBRAHİM KARAMAN":"C","YİĞİT ASLANGRİ":"D","TUNCAY ÇAĞLAYAN":"B","ABDULSAMET SEYAR":"D","BATUHAN SEYAR":"D","ALİ BİNGÖL":"D","ALTAN BULUT":"B","YASİN TERCANL":"D","İSMAİL YAZICI":"C","EMİR ÇAPAR":"D","OĞUZHAN ÇAVUSOĞLU":"D","TAHSIN CERAN":"C","MUHAMMED ONUR SAMUR":"D","İSMAİL BURAK AKYOL":"D"},
+  "Çengelköy": {"EMRE BULUT":"B","MURAT GÜNEY":"B","AHMET ÖZÇELİK":"A","TOLGA BULUT":"B","GÜLEN OTAÇ":"D","VEYSEL YILMAZ":"C","MUSTAFA YILDIRIM":"C","BEYTULLAH ÖMER YAĞMUR":"C","ŞEYMA KARA":"C","KEMAL KÖRPE":"A","BİLAL KAHVECİ":"C","ALİ ÖMER YILMAZ":"C","FATİH İPEK":"B","İSMAİL ŞİMŞEK":"A","TAHİR ŞAHBAZ":"C","SEMİH DÜNDAR":"C","ABDULSAMET YAPRAK":"D","METİN BULUT":"D","OSMAN KAPLAN":"D","RAMAZAN KOÇAL":"A","YAŞAR KEMAL HAN":"B","UĞUR YILMAZ":"C","NECMETTİN AKYILDIZ":"C","AZİM RECEBİ":"C","AZİMYAR SHAHABUDDİN":"C"}
+};
+function applyKnownLetters(){
+  const map = LETTER_MAP[branch] || {};
+  let n = 0;
+  (state.people||[]).forEach(p=>{
+    const letter = map[p.name];
+    if(letter){
+      p.template = letter;
+      const t = (TEMPLATES[branch]||{})[letter];
+      if(t){
+        p.mesaiBirim = t.mesaiBirim;
+        p.izinBirim = t.izinBirim;
+        p.hsBirim = t.hsBirim;
+      }
+      n++;
+    }
+  });
+  saveNow();
+  renderDuzenle();
+  toast(n + " kişiye harf uygulandı");
+}
+
+function applyTemplate(i, code){
+  const t = (TEMPLATES[branch]||{})[code];
+  if(!t || !state.people[i]) return;
+  state.people[i].template = code;
+  state.people[i].mesaiBirim = t.mesaiBirim;
+  state.people[i].hsBirim = t.hsBirim;
+  state.people[i].izinBirim = t.izinBirim;
+  saveNow();
+  renderDuzenle();
+}
+function setPName(i,v){ if(state.people[i]) state.people[i].name = v.trim(); saveNow(); }
+function setKurye(i,v){ if(state.people[i]) state.people[i].kurye = v; saveNow(); }
+function silKisi(i){ if(confirm("Silinsin mi?")){ state.people.splice(i,1); saveNow(); renderDuzenle(); } }
+function importPeople(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const text = e.target.result;
+    const lines = text.split(/\n/).map(s=>s.trim()).filter(Boolean);
+    let added = 0;
+    lines.forEach(line=>{
+      const parts = line.split(/[,;\t]/).map(s=>s.trim());
+      const name = parts[0];
+      const letter = (parts[1]||"").toUpperCase();
+      if(name && name.length>2 && !/^\d+$/.test(name)){
+        if(!state.people.find(p=>p.name===name)){
+          const p = {id:Date.now()+Math.random(), name, kurye:false, mesaiSaat:0, mesaiBirim:300, hsSaat:0, hsBirim:branch==="Çengelköy"?1000:2500, primAdet:0, yolTutar:0, izinGun:0, izinTutar:0, yillikTutar:0, disiplinDk:0, izinBirim:0};
+          if(["A","B","C","D"].includes(letter)){
+            p.template = letter;
+            const t = (TEMPLATES[branch]||{})[letter];
+            if(t){ p.mesaiBirim=t.mesaiBirim; p.izinBirim=t.izinBirim; p.hsBirim=t.hsBirim; }
+          }
+          state.people.push(p);
+          added++;
+        }
+      }
+    });
+    saveNow();
+    renderDuzenle();
+    toast(added + " kişi eklendi");
+  };
+  reader.readAsText(file);
+}
+function ekleKisi(){
+  const ad = document.getElementById("yeniAd").value.trim();
+  const birim = +document.getElementById("yeniBirim").value || 300;
+  if(!ad) return;
+  state.people.push({id: Date.now(), name: ad, kurye: false, mesaiSaat:0, mesaiBirim:birim, hsSaat:0, primAdet:0, yolTutar:0, izinGun:0, izinTutar:0, yillikTutar:0, disiplinDk:0, izinBirim:0, izinTutar:0});
+  saveNow();
+  renderDuzenle();
+  document.getElementById("yeniAd").value = "";
+}
+
+function load(){
+  if(SEED[branch] && SEED[branch].length){
+    state = {people: SEED[branch], cezalar: [], devamsizlik: []};
+    render();
+  }
+  db.ref("mesai/"+branch).once("value").then(snap=>{
+    const d = snap.val();
+    if(d && d.people && d.people.length){
+      state = d;
+      if(!state.cezalar) state.cezalar = [];
+      if(!state.devamsizlik) state.devamsizlik = [];
+      // Cadde için eksikse mevcut kayıtları ekle
+      if(branch==="Cadde"){
+        const DEFAULT_CEZA = {
+  "cezalar": [
+    {
+      "kisi": "SELİM ORTAHİSAR",
+      "tutar": 1000,
+      "neden": "TRENDYOL"
+    },
+    {
+      "kisi": "SELAHATTİN AVCI",
+      "tutar": 2000,
+      "neden": "TRENDYOL"
+    },
+    {
+      "kisi": "HAMİT AKPINAR",
+      "tutar": 500,
+      "neden": "Tredyol"
+    },
+    {
+      "kisi": "CİHAN AVCI",
+      "tutar": 500,
+      "neden": "Tredyol"
+    },
+    {
+      "kisi": "HASAN KOÇALAN",
+      "tutar": 1000,
+      "neden": "Kalitesiz ürün göndermek"
+    },
+    {
+      "kisi": "MUHAMMET SOFUOĞLU",
+      "tutar": 500,
+      "neden": "TRENDYOLA pişmemiş ürün göndermek"
+    },
+    {
+      "kisi": "AYDIN AVCI",
+      "tutar": 500,
+      "neden": "TRENDYOLA pişmemiş ürün göndermek"
+    },
+    {
+      "kisi": "UĞUR GÖKER",
+      "tutar": 1000,
+      "neden": "Trendyol eksik içecek götürmek",
+      "eklenme": "24.10.2026"
+    },
+    {
+      "kisi": "BEDRETTİN AVCI",
+      "tutar": 1000,
+      "neden": "TRENDYOL",
+      "eklenme": "27.10.2026"
+    }
+  ],
+  "devamsizlik": [
+    {
+      "kisi": "MUSTAFA AYDIN",
+      "gun": 1,
+      "not": "Raporlu",
+      "eklenme": ""
+    },
+    {
+      "kisi": "SAYİM GÜMÜŞ",
+      "gun": 1,
+      "not": "Raporsuz",
+      "eklenme": ""
+    },
+    {
+      "kisi": "MENDERES SOFUOĞLU",
+      "gun": 2,
+      "not": "Ücretsiz izin",
+      "eklenme": ""
+    },
+    {
+      "kisi": "HASAN İPEK",
+      "gun": 10,
+      "not": "Ücretsiz izin",
+      "eklenme": ""
+    },
+    {
+      "kisi": "CEMAL ÇELİK",
+      "gun": 3,
+      "not": "Ücretsiz izin",
+      "eklenme": ""
+    }
+  ]
+};
+        if(!state.cezalar.length) state.cezalar = DEFAULT_CEZA.cezalar || [];
+        if(!state.devamsizlik.length) state.devamsizlik = DEFAULT_CEZA.devamsizlik || [];
+        db.ref("mesai/Cadde").set(state);
+      }
+    } else if(SEED[branch] && SEED[branch].length){
+      state = { 
+        people: SEED[branch], 
+        cezalar: [{"kisi": "SELİM ORTAHİSAR", "tutar": 1000, "neden": "TRENDYOL"}, {"kisi": "SELAHATTİN AVCI", "tutar": 2000, "neden": "TRENDYOL"}, {"kisi": "HAMİT AKPINAR", "tutar": 500, "neden": "Tredyol"}, {"kisi": "CİHAN AVCI", "tutar": 500, "neden": "Tredyol"}, {"kisi": "HASAN KOÇALAN", "tutar": 1000, "neden": "Kalitesiz ürün göndermek"}, {"kisi": "MUHAMMET SOFUOĞLU", "tutar": 500, "neden": "TRENDYOLA pişmemiş ürün göndermek"}, {"kisi": "AYDIN AVCI", "tutar": 500, "neden": "TRENDYOLA pişmemiş ürün göndermek"}, {"kisi": "UĞUR GÖKER", "tutar": 1000, "neden": "Trendyol eksik içecek götürmek", "eklenme": "24.10.2026"}, {"kisi": "BEDRETTİN AVCI", "tutar": 1000, "neden": "TRENDYOL", "eklenme": "27.10.2026"}], 
+        devamsizlik: [{"kisi": "MUSTAFA AYDIN", "gun": 1, "not": "Raporlu", "eklenme": ""}, {"kisi": "SAYİM GÜMÜŞ", "gun": 1, "not": "Raporsuz", "eklenme": ""}, {"kisi": "MENDERES SOFUOĞLU", "gun": 2, "not": "Ücretsiz izin", "eklenme": ""}, {"kisi": "HASAN İPEK", "gun": 10, "not": "Ücretsiz izin", "eklenme": ""}, {"kisi": "CEMAL ÇELİK", "gun": 3, "not": "Ücretsiz izin", "eklenme": ""}] 
+      };
+      if(branch !== "Cadde"){ state.cezalar=[]; state.devamsizlik=[]; }
+      db.ref("mesai/"+branch).set(state);
+    } else {
+      state = { people: [], cezalar: [], devamsizlik: [] };
+    }
+    render();
+  });
+  db.ref("mesai/"+branch).on("value", snap=>{
+    const d = snap.val();
+    if(d && d.people){
+      state = d;
+      if(!state.cezalar) state.cezalar = [];
+      if(!state.devamsizlik) state.devamsizlik = [];
+      render();
+    }
+  });
+}
+
+function renderOzet(){
+  const el = document.getElementById("sec-ozet");
+  if(!el) return;
+  const mode = window.ozetMode || "kisa";
+  const list = state.people || [];
+  let tot = 0;
+  list.forEach(p => tot += calc(p).toplam);
+
+  let content = "";
+  if(mode === "kisa"){
+    const rows = list.map((p,i)=>{
+      const c = calc(p);
+      return `<tr>
+        <td style="padding:3px 6px;border-bottom:1px solid #eee;text-align:center;width:36px;color:#666;">${i+1}</td>
+        <td style="padding:3px 6px;border-bottom:1px solid #eee;text-align:left;">${p.name||""}</td>
+        <td style="padding:3px 6px;border-bottom:1px solid #eee;text-align:right;font-weight:700;width:90px;">${dash(c.toplam)}</td>
+      </tr>`;
+    }).join("");
+    content = `
+      <div style="max-width:420px;">
+        <table style="width:100%;border-collapse:collapse;background:#fff;font-size:13px;line-height:1.25;">
+          <thead><tr style="background:#1f4b8f;color:#fff;">
+            <th style="padding:5px 6px;width:36px;">#</th>
+            <th style="text-align:left;padding:5px 6px;">Ad Soyad</th>
+            <th style="text-align:right;padding:5px 6px;">Toplam</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+          <tfoot><tr style="background:#222;color:#fff;font-weight:700;">
+            <td></td>
+            <td style="padding:5px 6px;">TOPLAM</td>
+            <td style="text-align:right;padding:5px 6px;">${tl(tot)} TL</td>
+          </tr></tfoot>
+        </table>
+      </div>`;
+  } else {
+    let mesai=0, hs=0, prim=0, yol=0, izin=0, yillik=0;
+    const rows = list.map((p,i)=>{
+      const c = calc(p);
+      mesai+=c.mesai; hs+=c.hs; prim+=c.prim; yol+=c.yol; izin+=c.izin; yillik+=c.yillik;
+      return `<tr>
+        <td style="text-align:center;padding:5px;border:1px solid #eee;">${i+1}</td>
+        <td style="text-align:left;padding:5px 8px;border:1px solid #eee;font-weight:600;">${p.name||""}${p.kurye?" K":""}</td>
+        <td style="text-align:center;border:1px solid #eee;">${p.mesaiSaat||"-"}</td>
+        <td style="text-align:right;border:1px solid #eee;">${dash(c.mesai)}</td>
+        <td style="text-align:center;border:1px solid #eee;">${p.hsSaat||"-"}</td>
+        <td style="text-align:right;border:1px solid #eee;">${dash(c.hs)}</td>
+        <td style="text-align:right;border:1px solid #eee;">${dash(c.prim)}</td>
+        <td style="text-align:right;border:1px solid #eee;">${dash(c.yol)}</td>
+        <td style="text-align:right;border:1px solid #eee;">${dash(c.izin)}</td>
+        <td style="text-align:right;border:1px solid #eee;">${dash(c.yillik)}</td>
+        <td style="text-align:right;border:1px solid #eee;font-weight:700;background:#f3e8d2;">${dash(c.toplam)}</td>
+      </tr>`;
+    }).join("");
+    content = `
+      <div style="overflow:auto;max-height:68vh;">
+        <table style="width:100%;border-collapse:collapse;background:#fff;font-size:13px;min-width:920px;">
+          <thead>
+            <tr style="background:#1f4b8f;color:#fff;">
+              <th style="padding:7px;">#</th>
+              <th style="text-align:left;">Ad Soyad</th>
+              <th>Mesai Saat</th><th>Mesai</th>
+              <th>HS</th><th>HS Tutar</th>
+              <th>Prim</th><th>Yol</th>
+              <th>İzin</th><th>Yıllık</th>
+              <th>Toplam</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+          <tfoot>
+            <tr style="background:#222;color:#fff;font-weight:700;">
+              <td></td><td style="text-align:left;padding:6px;">TOPLAM</td>
+              <td></td><td style="text-align:right;">${tl(mesai)}</td>
+              <td></td><td style="text-align:right;">${tl(hs)}</td>
+              <td style="text-align:right;">${tl(prim)}</td>
+              <td style="text-align:right;">${tl(yol)}</td>
+              <td style="text-align:right;">${tl(izin)}</td>
+              <td style="text-align:right;">${tl(yillik)}</td>
+              <td style="text-align:right;">${tl(tot)}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>`;
+  }
+
+  el.innerHTML = `
+    <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap;">
+      <button onclick="window.ozetMode='kisa';renderOzet();" style="${mode==='kisa'?'background:#1f4b8f;color:#fff':''}">Kısa Özet</button>
+      <button onclick="window.ozetMode='detay';renderOzet();" style="${mode==='detay'?'background:#1f4b8f;color:#fff':''}">Ayrıntılı Özet</button>
+      <span style="margin-left:auto;font-size:14px;">${list.length} kişi • Toplam: <b>${tl(tot)} TL</b></span>
+      <button onclick="downloadPDF(window.ozetMode||'kisa')">PDF İndir / Paylaş</button>
+    </div>
+    ${content}`;
+}
+function renderDevam(){
+  const el = document.getElementById("sec-devam");
+  if(!el) return;
+  const rows = state.devamsizlik || [];
+  el.innerHTML = `
+    <h3>Devamsızlık</h3>
+    <div style="margin-bottom:10px;">
+      <input id="devamKisi" placeholder="Ad Soyad" style="padding:6px;">
+      <input id="devamGun" type="number" placeholder="Gün" style="width:60px;padding:6px;">
+      <input id="devamNot" placeholder="Not" style="padding:6px;">
+      <button onclick="addDevam()">Ekle</button>
+    </div>
+    <table style="width:100%;border-collapse:collapse;background:#fff;">
+      <thead><tr style="background:#c45c26;color:#fff;"><th style="padding:8px;">#</th><th>Ad Soyad</th><th>Gün</th><th>Not</th><th>Tarih</th><th></th></tr></thead>
+      <tbody>
+        ${rows.length ? rows.map((d,i)=>`<tr><td style="padding:6px;border:1px solid #eee;text-align:center;">${i+1}</td><td style="padding:6px 8px;border:1px solid #eee;text-align:left;font-weight:600;">${d.kisi}</td><td style="text-align:center;border:1px solid #eee;">${d.gun}</td><td style="border:1px solid #eee;">${d.not||"-"}</td><td style="border:1px solid #eee;">${d.eklenme||"-"}</td><td style="text-align:center;border:1px solid #eee;"><button onclick="delDevam(${i})">Sil</button></td></tr>`).join("") : '<tr><td colspan="6" style="padding:12px;text-align:center;">Kayıt yok</td></tr>'}
+      </tbody>
+    </table>`;
+}
+function addDevam(){
+  const kisi = document.getElementById("devamKisi").value.trim();
+  const gun = +document.getElementById("devamGun").value || 0;
+  const not = document.getElementById("devamNot").value.trim();
+  if(!kisi || !gun) return toast("Kişi ve gün gir");
+  if(!state.devamsizlik) state.devamsizlik = [];
+  state.devamsizlik.push({kisi, gun, not, eklenme: new Date().toLocaleDateString("tr")});
+  saveNow();
+  document.getElementById("devamKisi").value = "";
+  document.getElementById("devamGun").value = "";
+  document.getElementById("devamNot").value = "";
+}
+function delDevam(i){ state.devamsizlik.splice(i,1); saveNow(); }
+
+function renderCeza(){
+  const el = document.getElementById("sec-ceza");
+  if(!el) return;
+  const rows = state.cezalar || [];
+  el.innerHTML = `
+    <h3>Ceza</h3>
+    <div style="margin-bottom:10px;">
+      <input id="cezaKisi" placeholder="Ad Soyad" style="padding:6px;">
+      <input id="cezaTutar" type="number" placeholder="Tutar" style="width:80px;padding:6px;">
+      <input id="cezaNeden" placeholder="Neden" style="padding:6px;">
+      <button onclick="addCeza()">Ekle</button>
+    </div>
+    <table style="width:100%;border-collapse:collapse;background:#fff;">
+      <thead><tr style="background:#c45c26;color:#fff;"><th style="padding:8px;">#</th><th>Ad Soyad</th><th>Tutar</th><th>Neden</th><th>Tarih</th><th></th></tr></thead>
+      <tbody>
+        ${rows.length ? rows.map((c,i)=>`<tr><td style="padding:6px;border:1px solid #eee;text-align:center;">${i+1}</td><td style="padding:6px 8px;border:1px solid #eee;text-align:left;font-weight:600;">${c.kisi}</td><td style="text-align:center;border:1px solid #eee;">${tl(c.tutar)} TL</td><td style="border:1px solid #eee;">${c.neden||"-"}</td><td style="border:1px solid #eee;">${c.eklenme||"-"}</td><td style="text-align:center;border:1px solid #eee;"><button onclick="delCeza(${i})">Sil</button></td></tr>`).join("") : '<tr><td colspan="6" style="padding:12px;text-align:center;">Kayıt yok</td></tr>'}
+      </tbody>
+    </table>`;
+}
+function addCeza(){
+  const kisi = document.getElementById("cezaKisi").value.trim();
+  const tutar = +document.getElementById("cezaTutar").value || 0;
+  const neden = document.getElementById("cezaNeden").value.trim();
+  if(!kisi || !tutar) return toast("Kişi ve tutar gir");
+  if(!state.cezalar) state.cezalar = [];
+  state.cezalar.push({kisi, tutar, neden, eklenme: new Date().toLocaleDateString("tr")});
+  saveNow();
+  document.getElementById("cezaKisi").value = "";
+  document.getElementById("cezaTutar").value = "";
+  document.getElementById("cezaNeden").value = "";
+}
+function delCeza(i){ state.cezalar.splice(i,1); saveNow(); }
+
+
+async function loadTurkishFont(doc){
+  try{
+    const res = await fetch("https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/fonts/Roboto/Roboto-Regular.ttf");
+    if(!res.ok) return false;
+    const buf = await res.arrayBuffer();
+    const bytes = new Uint8Array(buf);
+    let bin = "";
+    for(let i=0; i<bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    const b64 = btoa(bin);
+    doc.addFileToVFS("Roboto-Regular.ttf", b64);
+    doc.addFont("Roboto-Regular.ttf", "Roboto", "normal");
+    doc.setFont("Roboto");
+    return true;
+  }catch(e){ return false; }
+}
+
+async function downloadPDF(kind){
+  if(!kind) kind = window.ozetMode || "kisa";
+  if(!window.jspdf || !window.jspdf.jsPDF){ toast("PDF yok"); return; }
+  const { jsPDF } = window.jspdf;
+  const now = new Date().toLocaleString("tr-TR", {day:"2-digit", month:"long", year:"numeric", hour:"2-digit", minute:"2-digit"});
+  let doc, font = "helvetica";
+
+  if(kind === "kisa"){
+    doc = new jsPDF({orientation:"portrait", unit:"mm", format:"a4"});
+    await loadTurkishFont(doc);
+    doc.setFillColor(11,18,32);
+    doc.rect(0,0,210,12,"F");
+    doc.setFontSize(12); doc.setTextColor(255,255,255);
+    doc.text(branch + " · KISA OZET", 10, 8);
+    doc.setFontSize(8);
+    doc.text(now, 200, 8, {align:"right"});
+    const body = (state.people||[]).map((p,i)=>[String(i+1), p.name||"", dash(calc(p).toplam)]);
+    let tot = 0; (state.people||[]).forEach(p=>tot += calc(p).toplam);
+    doc.autoTable({
+      startY: 16,
+      head: [["No","Ad Soyad","Odenecek"]],
+      body: body,
+      foot: [["","TOPLAM", tl(tot)]],
+      theme: "grid",
+      styles: {font:"Roboto", fontSize:8, cellPadding:1, halign:"center", textColor:[20,20,20]},
+      headStyles: {fillColor:[31,75,143], textColor:255},
+      footStyles: {fillColor:[34,34,34], textColor:255},
+      columnStyles: {0:{cellWidth:15}, 1:{halign:"left", cellWidth:100}, 2:{halign:"right"}},
+      margin: {left:10, right:10}
+    });
+  } else {
+    doc = new jsPDF({orientation:"landscape", unit:"mm", format:"a4"});
+    await loadTurkishFont(doc);
+    doc.setFillColor(11,18,32);
+    doc.rect(0,0,297,12,"F");
+    doc.setFontSize(12); doc.setTextColor(255,255,255);
+    doc.text(branch + " · LISTE", 10, 8);
+    doc.setFontSize(8);
+    doc.text(now, 287, 8, {align:"right"});
+    const body = (state.people||[]).map((p,i)=>{
+      const c = calc(p);
+      return [String(i+1), p.name||"", dash(c.mesai), dash(c.hs), dash(c.prim), dash(c.yol), dash(c.izin), dash(c.yillik), dash(c.toplam)];
+    });
+    let m=0,h=0,pr=0,y=0,iz=0,yi=0,t=0;
+    (state.people||[]).forEach(p=>{const c=calc(p); m+=c.mesai;h+=c.hs;pr+=c.prim;y+=c.yol;iz+=c.izin;yi+=c.yillik;t+=c.toplam;});
+    doc.autoTable({
+      startY: 16,
+      head: [["No","Ad Soyad","Mesai","HS","Prim","Yol","Izin","Yillik","Toplam"]],
+      body: body,
+      foot: [["","TOPLAM", tl(m), tl(h), tl(pr), tl(y), tl(iz), tl(yi), tl(t)]],
+      theme: "grid",
+      styles: {font:"Roboto", fontSize:7, cellPadding:0.8, halign:"center", textColor:[20,20,20]},
+      headStyles: {fillColor:[31,75,143], textColor:255},
+      footStyles: {fillColor:[34,34,34], textColor:255},
+      columnStyles: {0:{cellWidth:12}, 1:{halign:"left", cellWidth:50}},
+      margin: {left:8, right:8}
+    });
+  }
+  const filename = branch + "-" + (kind==="kisa"?"kisa-ozet":"liste") + ".pdf";
+  const isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
+  if (isMobile && navigator.share && navigator.canShare) {
+    const blob = doc.output("blob");
+    const file = new File([blob], filename, {type:"application/pdf"});
+    if (navigator.canShare({files:[file]})) {
+      navigator.share({files:[file], title: branch + " Özet"}).catch(()=>doc.save(filename));
+    } else {
+      doc.save(filename);
+    }
+  } else {
+    doc.save(filename);
+  }
+  toast("PDF indirildi");
+}
+
+load();
+window.addEventListener("load", ()=>{
+  if(location.search.includes("patron=1")){
+    const overlay = document.getElementById("loginOverlay");
+    if(overlay) overlay.style.display = "none";
+    if(!currentUser){
+      currentUser = {name:"Patron", branches:["Cadde","Kadıköy","Çengelköy","Taksim Pide","Taksim Büfe"], admin:true};
+      applyUserAccess();
+    }
+  }
+});
+</script>
+
+<script>
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').then(()=>{
+    console.log("SW kayıtlı");
+  }).catch(e=>console.warn(e));
+}
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const btn = document.createElement('button');
+  btn.textContent = 'Uygulama olarak kur';
+  btn.style.cssText = 'position:fixed;bottom:16px;right:16px;background:#1f4b8f;color:#fff;border:none;padding:10px 14px;border-radius:8px;z-index:999;font-weight:600;';
+  btn.onclick = () => { deferredPrompt.prompt(); btn.remove(); };
+  document.body.appendChild(btn);
+});
+</script>
 </body>
 </html>
