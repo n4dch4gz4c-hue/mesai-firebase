@@ -46,7 +46,6 @@ input.cell{width:60px;text-align:center;border:1px solid #ddd;border-radius:4px;
   #loginOverlay > div{width:90%;padding:24px;}
 }
 
-
 @media (max-width: 800px){
   body{font-size:14px;}
   .header{padding:8px 10px;flex-direction:column;align-items:stretch;gap:6px;}
@@ -64,7 +63,6 @@ input.cell{width:60px;text-align:center;border:1px solid #ddd;border-radius:4px;
   select{font-size:13px;padding:6px;}
   button{padding:6px 10px;font-size:13px;}
 }
-
 
 @media (max-width: 800px){
   body{font-size:12px;}
@@ -163,7 +161,6 @@ input.cell{width:60px;text-align:center;border:1px solid #ddd;border-radius:4px;
 <div id="sec-yetkili" style="display:none;padding:16px;"></div>
 <div id="sec-ozet" style="display:none;padding:16px;"></div>
 
-
   
 </div>
 
@@ -185,8 +182,6 @@ const USERS = [
   {name:"Ferhat Avcı", pass:"5656", branches:["Cadde"]}
 ];
 let currentUser = null;
-
-
 
 function doLogout(){
   sessionStorage.removeItem("mesaiUser");
@@ -317,7 +312,6 @@ db.ref("yetkililer").once("value").then(snap=>{
   }
 }).catch(()=>{});
 
-
 const SEED = {"Cadde": [{"id": 1, "name": "CEMAL ÇELİK", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 8000, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 2, "name": "ABDULLAH AVCI", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 3, "name": "CUMHUR YİĞİT", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 4, "primAdet": 0, "yolTutar": 35000, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 4, "name": "HÜSAMETTİN KÖRPE", "kurye": false, "mesaiSaat": 4, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 5, "name": "SALİH USTA", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 6, "name": "BURHAN BAYAKIR", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 7, "name": "ERDAL ÇAVDAR", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 66, "name": "OKTAY ÇELİK", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 8, "name": "HİKMET ERDOĞDU", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 9, "name": "SELİM ORTAHİSAR", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 10, "name": "MEHMET EMİN MÜDERRİSOĞLU", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 11, "name": "KÖKSAL SOYKAN", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 12, "name": "FERHAT AVCI", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 13, "name": "ERHAN SOFUOĞLU", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 14, "name": "HASAN ALİ GERZ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 15, "name": "MUHAMMET CAN SARICA", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 3, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 16, "name": "BİLAL SÜRİKLİ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 17, "name": "HASAN KOÇALAN", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 18, "name": "UĞUR GÖKER", "kurye": true, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 19, "name": "BEDRETTİN AVCI", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 4, "primAdet": 0, "yolTutar": 11000, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 20, "name": "EMRE POLAT", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 21, "name": "SELAHATTİN AVCI", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 22, "name": "CANER AVCI", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 23, "name": "ALİ AKKOCA", "kurye": true, "mesaiSaat": 1.5, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 24, "name": "AZAD MYRADOV", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 25, "name": "MURAT TORUN", "kurye": true, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 26, "name": "MEHMET ÇELİK", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 27, "name": "YILMAZ AVCI", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 4, "primAdet": 0, "yolTutar": 35000, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 28, "name": "RAMAZAN BAYAKIR", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 29, "name": "ONUR AVCI", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 30, "name": "MUHAMMET MUSTAFA BAYAKIR", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 31, "name": "CİHAN AVCI", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 1, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 32, "name": "FURKAN KAVAK", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 2350, "disiplinDk": 0, "izinBirim": 2700}, {"id": 33, "name": "SEPİDEH MENATTİ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 34, "name": "MUHAMMET EREN ÇELİK", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 35, "name": "MURAT DAĞIDIR", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 4, "primAdet": 0, "yolTutar": 30800, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 36, "name": "SEYFİ ÇELİK", "kurye": true, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 37, "name": "FEVZİ DOLAK", "kurye": true, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 39, "name": "AYDIN AVCI", "kurye": false, "mesaiSaat": 6, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 34100, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 40, "name": "HAKAN ATMACA", "kurye": true, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 3, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 42, "name": "ABDULLAH DENERİ", "kurye": false, "mesaiSaat": 8, "mesaiBirim": 220, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 43, "name": "HAMİT AKPINAR", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 44, "name": "ADİL EMİR ÇELİK", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 3, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 45, "name": "ABDURRAHMAN KAPAN", "kurye": true, "mesaiSaat": 1, "mesaiBirim": 270, "hsSaat": 3, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 46, "name": "SAYİM GÜMÜŞ", "kurye": true, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 1, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 49, "name": "YUNUS EMRE ÇELİK", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 50, "name": "RAMAZAN YAVUZ", "kurye": true, "mesaiSaat": 1, "mesaiBirim": 270, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 21850, "disiplinDk": 0, "izinBirim": 2400}, {"id": 51, "name": "ZEYNEP SOFUOĞLU", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 52, "name": "MUSTAFA AYDIN", "kurye": true, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 53, "name": "HASAN İPEK", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 54, "name": "KAAN ATASOY", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 55, "name": "ABDULLAH GÜRKAN", "kurye": false, "mesaiSaat": 2, "mesaiBirim": 320, "hsSaat": 3, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 56, "name": "VADETTİN AVCI", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 57, "name": "ERCAN ALTUN", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 58, "name": "OSMAN CEYLAN", "kurye": true, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 1, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 59, "name": "SEMİH SOFUOĞLU", "kurye": false, "mesaiSaat": 1, "mesaiBirim": 320, "hsSaat": 4, "primAdet": 0, "yolTutar": 32500, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 60, "name": "ABDURRAHMAN ÖZKAN", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 61, "name": "FIRAT AVCI", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 62, "name": "MENDERES SOFUOĞLU", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 63, "name": "HİCABİ AKYILDIZ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 64, "name": "ABDURRAHMAN BULUT", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 47, "name": "MUHİTTİN ÖZÇELİK", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 4, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 38, "name": "MUHAMMET SOFUOĞLU", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 1, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 65, "name": "MUHAMMED MÜMİN ILGAR", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 67, "name": "MÜSLÜM KANIKARA", "kurye": true, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 48, "name": "BAYRAM YETER", "kurye": true, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 0.5, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}], "Kadıköy": [{"id": 201, "name": "ÖZAY ALŞAN", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 202, "name": "ABDULKADİR AKYÜZ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 203, "name": "MUHAMMED AKYÜZ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 204, "name": "SEDAT KIZILKAYA", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 205, "name": "MAHMUT TEKER", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 206, "name": "İSRAFİL ÖZTÜRK", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 207, "name": "CAFER KOCA", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 208, "name": "İSA AKYILDIZ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 209, "name": "MUHSİN IŞIK", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 210, "name": "RAMAZAN KURAL", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 211, "name": "RAMAZAN UZUNALP", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 212, "name": "GÜRKAN EYÜPOĞLU", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 213, "name": "VEDAT ÖZTÜRK", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 214, "name": "BİLAL DENERİ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 215, "name": "VEPA", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 216, "name": "GÖKHAN YEŞİLBAŞ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 217, "name": "EREN YILMAZ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 218, "name": "İSMAİL ALBAYRAK", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 219, "name": "MURAT KAYA", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 220, "name": "MUHSİN ÖZMERT", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 221, "name": "EMİRHAN KANDEMİR", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 222, "name": "AZAT ASLANGRİ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 223, "name": "RIZVAN FINDIK", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 224, "name": "K. ENDER KIZILKAYA", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 225, "name": "ERAY SOFUOĞLU", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 226, "name": "FURKAN ARDA", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 227, "name": "FERAT GÜNDÜZ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 320, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2900}, {"id": 228, "name": "İBRAHİM KARAMAN", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 229, "name": "YİĞİT ASLANGRİ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 230, "name": "TUNCAY ÇAĞLAYAN", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 231, "name": "ABDULSAMET SEYAR", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 232, "name": "BATUHAN SEYAR", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 233, "name": "ALİ BİNGÖL", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 234, "name": "ALTAN BULUT", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 300, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2700}, {"id": 235, "name": "YASİN TERCANL", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 236, "name": "İSMAİL YAZICI", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 237, "name": "EMİR ÇAPAR", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 238, "name": "OĞUZHAN ÇAVUSOĞLU", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 239, "name": "TAHSIN CERAN", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 270, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2400}, {"id": 240, "name": "MUHAMMED ONUR SAMUR", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 241, "name": "İSMAİL BURAK AKYOL", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}], "Çengelköy": [{"id": 101, "name": "EMRE BULUT", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 250, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2500}, {"id": 102, "name": "MURAT GÜNEY", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 250, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2500}, {"id": 103, "name": "AHMET ÖZÇELİK", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 280, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2800}, {"id": 104, "name": "TOLGA BULUT", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 250, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2500}, {"id": 105, "name": "GÜLEN OTAÇ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 190, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 106, "name": "VEYSEL YILMAZ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 230, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2300}, {"id": 107, "name": "MUSTAFA YILDIRIM", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 230, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2300}, {"id": 108, "name": "BEYTULLAH ÖMER YAĞMUR", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 230, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2300}, {"id": 109, "name": "ŞEYMA KARA", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 230, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2300}, {"id": 110, "name": "KEMAL KÖRPE", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 280, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2800}, {"id": 111, "name": "BİLAL KAHVECİ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 230, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2300}, {"id": 112, "name": "ALİ ÖMER YILMAZ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 230, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2300}, {"id": 113, "name": "FATİH İPEK", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 250, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2500}, {"id": 114, "name": "İSMAİL ŞİMŞEK", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 280, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2800}, {"id": 115, "name": "TAHİR ŞAHBAZ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 230, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2300}, {"id": 116, "name": "SEMİH DÜNDAR", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 230, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2300}, {"id": 117, "name": "ABDULSAMET YAPRAK", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 190, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 118, "name": "METİN BULUT", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 190, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 119, "name": "OSMAN KAPLAN", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 280, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 4000, "disiplinDk": 0, "izinBirim": 2800}, {"id": 120, "name": "RAMAZAN KOÇAL", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 250, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2500}, {"id": 121, "name": "YAŞAR KEMAL HAN", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 250, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 2800}, {"id": 122, "name": "UĞUR YILMAZ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 230, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 123, "name": "NECMETTİN AKYILDIZ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 230, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 124, "name": "AZİM RECEBİ", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}, {"id": 125, "name": "AZİMYAR SHAHABUDDİN", "kurye": false, "mesaiSaat": 0, "mesaiBirim": 220, "hsSaat": 0, "primAdet": 0, "yolTutar": 0, "izinGun": 0, "izinTutar": 0, "yillikTutar": 0, "disiplinDk": 0, "izinBirim": 1900}]};
 
 const PRIM_BIRIM = 7;
@@ -345,7 +339,6 @@ const TEMPLATES = {
 
 let branch = "Cadde";
 let state = { people: [], cezalar: [], devamsizlik: [] };
-
 
 function showTab(name, btn){
   document.querySelectorAll('[id^="sec-"]').forEach(el=>el.style.display="none");
@@ -383,7 +376,6 @@ function calc(p){
   const tezgah = p.tezgahTip||0;
   return {mesai, hs, prim, yol, izin, yillik, dis, tezgah, toplam: mesai+hs+prim+yol+izin+yillik+tezgah-dis};
 }
-
 
 let searchQuery = "";
 
@@ -508,7 +500,6 @@ window.addEventListener("load", ()=>{
   }
 });
 }
-
 
 async function renderDashboard(){
   const el = document.getElementById("sec-dashboard");
@@ -638,10 +629,6 @@ function savePrevSnapshot(){
   toast("Geçen ay kaydedildi");
   renderDashboard();
 }
-
-
-
-
 
 function renderHarf(){
   const el = document.getElementById("sec-harf");
@@ -868,95 +855,7 @@ function load(){
       state = d;
       if(!state.cezalar) state.cezalar = [];
       if(!state.devamsizlik) state.devamsizlik = [];
-      // Cadde için eksikse mevcut kayıtları ekle
-      if(branch==="Cadde"){
-        const DEFAULT_CEZA = {
-  "cezalar": [
-    {
-      "kisi": "SELİM ORTAHİSAR",
-      "tutar": 1000,
-      "neden": "TRENDYOL"
-    },
-    {
-      "kisi": "SELAHATTİN AVCI",
-      "tutar": 2000,
-      "neden": "TRENDYOL"
-    },
-    {
-      "kisi": "HAMİT AKPINAR",
-      "tutar": 500,
-      "neden": "Tredyol"
-    },
-    {
-      "kisi": "CİHAN AVCI",
-      "tutar": 500,
-      "neden": "Tredyol"
-    },
-    {
-      "kisi": "HASAN KOÇALAN",
-      "tutar": 1000,
-      "neden": "Kalitesiz ürün göndermek"
-    },
-    {
-      "kisi": "MUHAMMET SOFUOĞLU",
-      "tutar": 500,
-      "neden": "TRENDYOLA pişmemiş ürün göndermek"
-    },
-    {
-      "kisi": "AYDIN AVCI",
-      "tutar": 500,
-      "neden": "TRENDYOLA pişmemiş ürün göndermek"
-    },
-    {
-      "kisi": "UĞUR GÖKER",
-      "tutar": 1000,
-      "neden": "Trendyol eksik içecek götürmek",
-      "eklenme": "24.10.2026"
-    },
-    {
-      "kisi": "BEDRETTİN AVCI",
-      "tutar": 1000,
-      "neden": "TRENDYOL",
-      "eklenme": "27.10.2026"
-    }
-  ],
-  "devamsizlik": [
-    {
-      "kisi": "MUSTAFA AYDIN",
-      "gun": 1,
-      "not": "Raporlu",
-      "eklenme": ""
-    },
-    {
-      "kisi": "SAYİM GÜMÜŞ",
-      "gun": 1,
-      "not": "Raporsuz",
-      "eklenme": ""
-    },
-    {
-      "kisi": "MENDERES SOFUOĞLU",
-      "gun": 2,
-      "not": "Ücretsiz izin",
-      "eklenme": ""
-    },
-    {
-      "kisi": "HASAN İPEK",
-      "gun": 10,
-      "not": "Ücretsiz izin",
-      "eklenme": ""
-    },
-    {
-      "kisi": "CEMAL ÇELİK",
-      "gun": 3,
-      "not": "Ücretsiz izin",
-      "eklenme": ""
-    }
-  ]
-};
-        if(!state.cezalar.length) state.cezalar = DEFAULT_CEZA.cezalar || [];
-        if(!state.devamsizlik.length) state.devamsizlik = DEFAULT_CEZA.devamsizlik || [];
-        db.ref("mesai/Cadde").set(state);
-      }
+
     } else if(SEED[branch] && SEED[branch].length){
       state = { 
         people: SEED[branch], 
@@ -1139,7 +1038,6 @@ function addCeza(){
   document.getElementById("cezaNeden").value = "";
 }
 function delCeza(i){ state.cezalar.splice(i,1); saveNow(); }
-
 
 async function loadTurkishFont(doc){
   try{
