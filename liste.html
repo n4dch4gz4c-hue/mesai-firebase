@@ -1004,7 +1004,7 @@ function addDevam(){
   document.getElementById("devamGun").value = "";
   document.getElementById("devamNot").value = "";
 }
-function delDevam(i){ state.devamsizlik.splice(i,1); saveNow(); }
+function delDevam(i){ state.devamsizlik.splice(i,1); saveNow(); renderDevam(); }
 
 function renderCeza(){
   const el = document.getElementById("sec-ceza");
@@ -1037,7 +1037,7 @@ function addCeza(){
   document.getElementById("cezaTutar").value = "";
   document.getElementById("cezaNeden").value = "";
 }
-function delCeza(i){ state.cezalar.splice(i,1); saveNow(); }
+function delCeza(i){ state.cezalar.splice(i,1); saveNow(); renderCeza(); }
 
 async function loadTurkishFont(doc){
   try{
