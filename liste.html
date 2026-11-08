@@ -242,11 +242,13 @@ function applyUserAccess(){
       branch = sel.value;
     }
   }
-  const dashBtn = document.querySelector('button.tab[onclick*="dashboard"], .tab[onclick*="dashboard"]');
+  const dashBtn = document.querySelector('button.tab[onclick*="dashboard"]');
+  const yetkiliBtn = document.querySelector('button.tab[onclick*="yetkili"]');
   const kuryeBtn = document.querySelector('button.tab[onclick*="kurye"]');
   if(kuryeBtn) kuryeBtn.style.display = (branch==="Cadde") ? "" : "none";
-  if(dashBtn) dashBtn.style.display = currentUser.admin ? "" : "none";
-  
+  const isPatronOrSemih = currentUser.patron || currentUser.name === "Semih Sofuoğlu" || currentUser.name === "Patron" || currentUser.name === "Alper Kızılkaya";
+  if(dashBtn) dashBtn.style.display = isPatronOrSemih ? "" : "none";
+  if(yetkiliBtn) yetkiliBtn.style.display = isPatronOrSemih ? "" : "none";
 }
 
 // Auto login if session exists
@@ -534,11 +536,33 @@ async function renderDashboard(){
     }
   }
 
-  let prevAll = {toplam:0, mesai:0, hs:0, izin:0, ceza:0};
+  let prevAll = {toplam:0, mesai:0, hs:0, izin:0, ceza:0, yol:0};
   try{
-    const prev = JSON.parse(localStorage.getItem("mesai_prev_snapshot")||"null");
-    if(prev && prev.all) prevAll = prev.all;
-  }catch(e){}
+    // Önce Firebase prevSnapshot'a bak
+    const snapPrev = await db.ref("prevSnapshot").once("value");
+    const prev = snapPrev.val();
+    if(prev && prev.all) {
+      prevAll = prev.all;
+    } else {
+      // Yoksa arşivden 2026-10 toplamlarını hesapla
+      const arsivSnap = await db.ref("arsiv").once("value");
+      const arsiv = arsivSnap.val() || {};
+      const month = "2026-10";
+      for(const b of Object.keys(arsiv)){
+        const d = arsiv[b] && arsiv[b][month];
+        if(!d) continue;
+        (d.people||[]).forEach(p=>{
+          const c = calc(p);
+          prevAll.toplam += c.toplam || 0;
+          prevAll.mesai += c.mesai || 0;
+          prevAll.hs += c.hs || 0;
+          prevAll.izin += (c.izin||0) + (c.yillik||0);
+          prevAll.yol += c.yol || 0;
+        });
+        prevAll.ceza += (d.cezalar||[]).reduce((a,c)=>a+(c.tutar||0),0);
+      }
+    }
+  }catch(e){ console.error(e); }
 
   function pct(cur, prev){
     if(!prev || prev===0) return "-";
@@ -608,25 +632,26 @@ async function renderDashboard(){
     </div>`;
 }
 
-function savePrevSnapshot(){
-  // Will be filled by current all totals on next render
-  toast("Geçen ay kaydı için Dashboard'u yenile");
-}
-
-function savePrevSnapshot(){
-  const all = {toplam:0, mesai:0, hs:0, izin:0, ceza:0};
-  if(state.people){
-    state.people.forEach(p=>{
-      const c = calc(p);
-      all.toplam += c.toplam;
-      all.mesai += c.mesai;
-      all.hs += c.hs;
-      all.izin += (c.izin||0)+(c.yillik||0);
-    });
+async function savePrevSnapshot(){
+  const branches = ["Cadde","Kadıköy","Çengelköy","Taksim Pide","Taksim Büfe"];
+  let all = {toplam:0, mesai:0, hs:0, izin:0, yol:0, ceza:0};
+  for(const b of branches){
+    try{
+      const snap = await db.ref("mesai/"+b).once("value");
+      const d = snap.val() || {};
+      (d.people||[]).forEach(p=>{
+        const c = calc(p);
+        all.toplam += c.toplam;
+        all.mesai += c.mesai;
+        all.hs += c.hs;
+        all.izin += (c.izin||0)+(c.yillik||0);
+        all.yol += c.yol || 0;
+      });
+      all.ceza += (d.cezalar||[]).reduce((a,c)=>a+(c.tutar||0),0);
+    }catch(e){}
   }
-  if(state.cezalar) all.ceza = state.cezalar.reduce((a,c)=>a+(c.tutar||0),0);
-  localStorage.setItem("mesai_prev_snapshot", JSON.stringify({all, saved: new Date().toISOString()}));
-  toast("Geçen ay kaydedildi");
+  await db.ref("prevSnapshot").set({all, saved: new Date().toISOString()});
+  toast("Geçen ay kaydedildi (Firebase)");
   renderDashboard();
 }
 
@@ -662,7 +687,8 @@ function setTemplate(letter, key, val){
 
 function renderYetkili(){
   const el = document.getElementById("sec-yetkili");
-  if(!el || !currentUser || !currentUser.admin) { if(el) el.innerHTML="<p>Yetkin yok</p>"; return; }
+  const isPatronOrSemih = currentUser && (currentUser.patron || currentUser.name === "Semih Sofuoğlu" || currentUser.name === "Patron" || currentUser.name === "Alper Kızılkaya");
+  if(!el || !isPatronOrSemih) { if(el) el.innerHTML="<p>Yetkin yok</p>"; return; }
   let rows = USERS.map((u,i)=>`<tr><td>${u.name}</td><td>${u.pass}</td><td>${u.branches.join(", ")}</td><td>${u.admin?"Admin":"-"}</td></tr>`).join("");
   el.innerHTML = `
     <h3>Yetkililer</h3>
